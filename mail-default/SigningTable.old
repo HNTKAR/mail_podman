@@ -23,4 +23,3 @@
 # "SigningTable" for more details.
 
 #example.com default._domainkey.example.com
-*@server_name dkim_selector._domainkey.server_name

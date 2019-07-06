@@ -73,14 +73,14 @@ mail_owner = postfix
 # other configuration parameters.
 #
 #myhostname = host.domain.tld
-myhostname = mail.server_name
+#myhostname = virtual.domain.tld
 
 # The mydomain parameter specifies the local internet domain name.
 # The default is to use $myhostname minus the first component.
 # $mydomain is used as a default value for many other configuration
 # parameters.
 #
-mydomain = server_name
+#mydomain = domain.tld
 
 # SENDING MAIL
 # 
@@ -110,13 +110,13 @@ mydomain = server_name
 #
 # Note: you need to stop/start Postfix when this parameter changes.
 #
-inet_interfaces = all
+#inet_interfaces = all
 #inet_interfaces = $myhostname
 #inet_interfaces = $myhostname, localhost
-#inet_interfaces = localhost
+inet_interfaces = localhost
 
 # Enable IPv4, and IPv6 if supported
-inet_protocols = ipv4
+inet_protocols = all
 
 # The proxy_interfaces parameter specifies the network interface
 # addresses that this mail system receives mail on by way of a
@@ -161,8 +161,8 @@ inet_protocols = ipv4
 #
 # See also below, section "REJECTING MAIL FOR UNKNOWN LOCAL USERS".
 #
-#mydestination = $myhostname, localhost.$mydomain, localhost
-mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+mydestination = $myhostname, localhost.$mydomain, localhost
+#mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
 #mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain,
 #	mail.$mydomain, www.$mydomain, ftp.$mydomain
 
@@ -205,7 +205,7 @@ mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
 # In the left-hand side, specify a bare username, an @domain.tld
 # wild-card, or specify a user@domain.tld address.
 # 
-local_recipient_maps = unix:passwd.byname $alias_maps
+#local_recipient_maps = unix:passwd.byname $alias_maps
 #local_recipient_maps = proxy:unix:passwd.byname $alias_maps
 #local_recipient_maps =
 
@@ -416,7 +416,7 @@ alias_database = hash:/etc/aliases
 # "Maildir/" for qmail-style delivery (the / is required).
 #
 #home_mailbox = Mailbox
-home_mailbox = Maildir/
+#home_mailbox = Maildir/
  
 # The mail_spool_directory parameter specifies the directory where
 # UNIX-style mailboxes are kept. The default setting depends on the
@@ -677,23 +677,3 @@ sample_directory = /usr/share/doc/postfix-2.10.1/samples
 # readme_directory: The location of the Postfix README files.
 #
 readme_directory = /usr/share/doc/postfix-2.10.1/README_FILES
-
-smtpd_banner = $myhostname ESMTP
-masquerade_domains = server_name
-smtpd_sasl_auth_enable = yes
-smtpd_sasl_type = dovecot
-smtpd_sasl_path = private/auth
-broken_sasl_auth_clients = yes
-smtpd_recipient_restrictions = permit_mynetworks
-				permit_sasl_authenticated
-				reject_unauth_destination
-smtp_tls_security_level = may
-smtpd_tls_cert_file = /etc/letsencrypt/live/mail.server_name/fullchain.pem
-smtpd_tls_key_file = /etc/letsencrypt/live/mail.server_name/privkey.pem
-smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache
-smtpd_tls_session_cache_timeout = 3600s
-smtpd_tls_received_header = yes
-smtpd_tls_loglevel = 1
-smtpd_milters = inet:127.0.0.1:8891
-non_smtpd_milters = $smtpd_milters
-milter_default_action = accept

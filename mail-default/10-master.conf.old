@@ -16,11 +16,11 @@
 
 service imap-login {
   inet_listener imap {
-    port = 0
+    #port = 143
   }
   inet_listener imaps {
-    port = 993
-    ssl = yes
+    #port = 993
+    #ssl = yes
   }
 
   # Number of connections to handle before starting a new process. Typically
@@ -37,11 +37,11 @@ service imap-login {
 
 service pop3-login {
   inet_listener pop3 {
-    port = 0
+    #port = 110
   }
   inet_listener pop3s {
-    port = 995
-    ssl = yes
+    #port = 995
+    #ssl = yes
   }
 }
 
@@ -93,11 +93,9 @@ service auth {
   }
 
   # Postfix smtp-auth
-  unix_listener /var/spool/postfix/private/auth {
-    mode = 0666
-    user = postfix
-    group = postfix
-  }
+  #unix_listener /var/spool/postfix/private/auth {
+  #  mode = 0666
+  #}
 
   # Auth process is run as this user.
   #user = $default_internal_user

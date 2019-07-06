@@ -21,7 +21,7 @@
 #
 # See doc/wiki/Variables.txt for full list. Some examples:
 #
-mail_location = maildir:~/Maildir
+#   mail_location = maildir:~/Maildir
 #   mail_location = mbox:~/mail:INBOX=/var/mail/%u
 #   mail_location = mbox:/var/mail/%d/%1n/%n:INDEX=/var/indexes/%d/%1n/%n
 #

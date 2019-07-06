@@ -2,12 +2,14 @@ FROM centos
 MAINTAINER kusari-k
 
 RUN yum update -y
-RUN yum install -y cyrus-sasl-plain epel-release dovecot postfix
+RUN yum install -y cyrus-sasl-plain epel-release dovecot postfix rsyslog
 RUN yum install -y opendkim 
 RUN yum clean all
 
 EXPOSE 25 995 993 465 587 
 
+COPY rsyslog.conf /etc/
+COPY listen.conf /etc/rsyslog.d/
 
 COPY 10-auth.conf \
      10-mail.conf \

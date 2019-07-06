@@ -27,20 +27,30 @@ while :
 
 read -p "set your server domain :" domain
 read -p "set your dkim selector :" selector
-read -p "set your user name :" names
-read -sp "set your user password :" passes
+read -p "set your user name :" name
+read -sp "set your user password :" pass
 cd $directory
-name_array=($names)
-pass_array=($passes)
 grep -l server_name * | xargs -I {} sed -i {} -e  s/server_name/$domain/g
 grep -l dkim_selector * | xargs -I {} sed -i {} -e  s/dkim_selector/$selector/g
 
-for i in `seq ${#name_array[*]}`
-	do
-	echo -e "\nRUN useradd ${name_array[$((i-1))]};\\">>Dockerfile
-	echo "echo ${pass_array[$((i-1))]} | passwd --stdin ${name_array[((i-1))]}">>Dockerfile
-done
-echo ""
+	echo -e "\nRUN useradd $name;\\">>Dockerfile
+	echo "echo $pass | passwd --stdin $name">>Dockerfile
+	echo ""
+	while :
+		do
+		read -p "do you add other user ? (y/n):" u_add
+		if [ ${u_add,,} = "y" ]; then
+		read -p "set your user name :" name
+		read -sp "set your user password :" pass
+		echo -e "\nRUN useradd $name;\\">>Dockerfile
+		echo "echo $pass | passwd --stdin $name">>Dockerfile
+		echo ""
+		fi
+
+		if [ ${u_add,,} = "n" ]; then
+				break
+		fi
+		done
 
 read -p "do you want to up this container ? (y/n):" yn
 if [ ${yn,,} = "y" ]; then
