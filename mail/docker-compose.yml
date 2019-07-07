@@ -9,9 +9,11 @@ services:
       - "993:993"
       - "995:995"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /mnt:/mnt
       - /etc/opendkim/keys/server_name:/etc/opendkim/keys/server_name
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/log/docker_log/:/var/log/docker_log/
     image: mail
     container_name: mail
 
