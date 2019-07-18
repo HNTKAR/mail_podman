@@ -1,9 +1,0 @@
-logfile=/var/log/docker_log/maillog
-`:`>>black_list
-chmod 777 black_list
-cat $logfile | grep warning | grep failed > tmp
-sed  -i -e 's/.*\[//g' -e 's/\].*'//g tmp
-cat black_list>>tmp
-sort tmp > sorted
-uniq sorted black_list
-rm sorted tmp
