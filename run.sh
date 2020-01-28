@@ -1,5 +1,3 @@
-domain=example.com
-
 #/etc/postfix/main.cf
 sed -i -e "/host.domain.tld/amyhostname\ =\ mail\.$domain" \
         -e "/#mydomain/amydomain\ =\ $domain" \
@@ -69,7 +67,7 @@ sed -i -e "s/#submission/submission/" \
 
 #opendkim
 mkdir -p /etc/opendkim/keys/$domain/
-opendkim-genkey -D /etc/opendkim/keys/$domain/ -d kusari.work -s $(date "+%Y%m%d")
+opendkim-genkey -D /etc/opendkim/keys/$domain/ -d $domain -s $(date "+%Y%m%d")
 chown -R opendkim:opendkim /etc/opendkim/keys/$domain/
 
 #/etc/opendkim.conf
@@ -86,3 +84,16 @@ echo "$(date "+%Y%m%d")._domainkey.$domain $domain:$(date "+%Y%m%d"):/etc/opendk
 
 #/etc/opendkim/SigningTable
 echo "*@$domain $(date "+%Y%m%d")._domainkey.$domain" >> /etc/opendkim/SigningTable
+
+#start mail program
+/usr/libexec/postfix/aliasesdb
+/usr/libexec/postfix/chroot-update
+/usr/libexec/dovecot/prestartscript
+
+/usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
+/usr/sbin/dovecot
+/usr/libexec/postfix/master -w
+/usr/sbin/postfix start
+#/usr/sbin/rsyslogd 
+
+tail -f /dev/null 

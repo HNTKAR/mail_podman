@@ -1,4 +1,4 @@
-version: '2'
+version: '3.7'
 services:
   mail_img:
     build: .
@@ -12,9 +12,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /mnt:/mnt
       - /home/docker_home:/home
-      - /etc/opendkim/keys/server_name:/etc/opendkim/keys/server_name
+      - /etc/opendkim/:/etc/opendkim/
       - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /var/log/docker_log/:/var/log/docker_log
+      - /var/log/docker_log/:/var/log/
     image: mail
     container_name: mail
-
