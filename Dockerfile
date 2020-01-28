@@ -2,7 +2,7 @@ FROM centos
 MAINTAINER kusari-k
 
 RUN dnf update -y
-RUN dnf install -y dovecot postfix epel-release cyrus-sasl-plain passwd
+RUN dnf install -y rsyslog dovecot postfix epel-release passwd cyrus-sasl-plain cyrus-sasl cyrus-sasl-md5 perl
 RUN dnf install -y https://extras.getpagespeed.com/release-el8-latest.rpm
 RUN dnf install -y opendkim 
 RUN dnf update -y

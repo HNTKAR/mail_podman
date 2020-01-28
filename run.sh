@@ -89,13 +89,14 @@ echo "$(date "+%Y%m%d")._domainkey.$domain $domain:$(date "+%Y%m%d"):/etc/opendk
 echo "*@$domain $(date "+%Y%m%d")._domainkey.$domain" >> /etc/opendkim/SigningTable
 
 #start mail program
+/usr/sbin/rsyslogd -n
+/usr/sbin/postfix stop
 /usr/libexec/postfix/aliasesdb
 /usr/libexec/postfix/chroot-update
 /usr/libexec/dovecot/prestartscript
 
 /usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
 /usr/sbin/dovecot
-/usr/libexec/postfix/master -w
 /usr/sbin/postfix start
 #/usr/sbin/rsyslogd 
 
