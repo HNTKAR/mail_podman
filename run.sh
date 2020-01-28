@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 #/etc/postfix/main.cf
 sed -i -e "/host.domain.tld/amyhostname\ =\ mail\.$domain" \
         -e "/#mydomain/amydomain\ =\ $domain" \
@@ -8,7 +9,9 @@ sed -i -e "/host.domain.tld/amyhostname\ =\ mail\.$domain" \
         -e "/^#mydestination.*\$mydomain\$/ s/^#//" \
         -e "/#local_recipient_maps\ =\ unix/ s/^#//" \
         -e "/#home_mailbox.*dir\/$/ s/^#//" \
-        -e "/#smtpd.*name\$/asmtpd_banner\ =\ \$myhostname ESMTP" /etc/postfix/main.cf
+        -e "/#smtpd.*name\$/asmtpd_banner\ =\ \$myhostname ESMTP" \
+	-e "/smtpd_tls_cert_file/ s/\/.*/\/etc\/letsencrypt\/live\/mail.$domain\/fullchain.pem/" \
+	-e "/smtpd_tls_key_file/ s/\/.*/\/etc\/letsencrypt\/live\/mail.$domain\/privkey.pem/" /etc/postfix/main.cf
 echo """masquerade_domains = $domain
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
