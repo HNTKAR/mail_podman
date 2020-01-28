@@ -1,6 +1,13 @@
 FROM centos
 MAINTAINER kusari-k
 
+RUN dnf update -y
+RUN dnf install -y dovecot postfix epel-release
+RUN dnf install -y https://extras.getpagespeed.com/release-el8-latest.rpm
+RUN dnf install -y opendkim 
+RUN dnf update -y
+RUN dnf clean all
+##############################
 RUN yum update -y
 RUN yum install -y cyrus-sasl-plain epel-release dovecot postfix rsyslog
 RUN yum install -y opendkim 
