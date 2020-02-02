@@ -88,16 +88,21 @@ echo "$(date "+%Y%m%d")._domainkey.$domain $domain:$(date "+%Y%m%d"):/etc/opendk
 #/etc/opendkim/SigningTable
 echo "*@$domain $(date "+%Y%m%d")._domainkey.$domain" >> /etc/opendkim/SigningTable
 
+#/etc/rsyslog.conf
+sed -i -e "/imjournal/ s/^/#/" \
+	-e "s/off/on/" rsyslog.conf
+
 #start mail program
-/usr/sbin/rsyslogd -n
-/usr/sbin/postfix stop
-/usr/libexec/postfix/aliasesdb
-/usr/libexec/postfix/chroot-update
-/usr/libexec/dovecot/prestartscript
+
+/usr/sbin/rsyslogd 
 
 /usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
-/usr/sbin/dovecot
-/usr/sbin/postfix start
-#/usr/sbin/rsyslogd 
+
+/usr/libexec/postfix/aliasesdb && \
+	/usr/libexec/postfix/chroot-update && \
+	/usr/sbin/postfix start
+
+/usr/libexec/dovecot/prestartscript && \
+	/usr/sbin/dovecot
 
 tail -f /dev/null 
