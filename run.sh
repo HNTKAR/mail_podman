@@ -90,10 +90,9 @@ echo "*@$domain $(date "+%Y%m%d")._domainkey.$domain" >> /etc/opendkim/SigningTa
 
 #/etc/rsyslog.conf
 sed -i -e "/imjournal/ s/^/#/" \
-	-e "s/off/on/" rsyslog.conf
+	-e "s/off/on/" /etc/rsyslog.conf
 
 #start mail program
-
 /usr/sbin/rsyslogd 
 
 /usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
