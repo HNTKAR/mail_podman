@@ -20,8 +20,6 @@ broken_sasl_auth_clients = yes
 smtpd_recipient_restrictions = permit_mynetworks permit_sasl_authenticated reject_unauth_destination
 """>>/etc/postfix/main.cf
 echo """smtp_tls_security_level = may
-smtpd_tls_cert_file = /etc/letsencrypt/live/mail.$domain/fullchain.pem
-smtpd_tls_key_file = /etc/letsencrypt/live/mail.$domain/privkey.pem
 smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache
 smtpd_tls_session_cache_timeout = 3600s
 smtpd_tls_received_header = yes
@@ -93,7 +91,7 @@ sed -i -e "/imjournal/ s/^/#/" \
 	-e "s/off/on/" /etc/rsyslog.conf
 
 #start mail program
-/usr/sbin/rsyslogd 
+/usr/sbin/rsyslogd
 
 /usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
 
