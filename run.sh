@@ -96,7 +96,7 @@ sed -i -e "/pam_nologin/ s/auth/\#auth/" /etc/pam.d/dovecot
 #start mail program
 /usr/sbin/rsyslogd
 
-/usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
+#/usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
 
 /usr/libexec/postfix/aliasesdb && \
 	/usr/libexec/postfix/chroot-update && \
