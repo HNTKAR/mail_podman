@@ -17,7 +17,7 @@ smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 broken_sasl_auth_clients = yes
-smtpd_recipient_restrictions = permit_mynetworks permit_sasl_authenticated reject_unauth_destination
+smtpd_recipient_restrictions = permit_sasl_authenticated reject_unauth_destination
 """>>/etc/postfix/main.cf
 echo """smtp_tls_security_level = may
 smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache
@@ -25,10 +25,10 @@ smtpd_tls_session_cache_timeout = 3600s
 smtpd_tls_received_header = yes
 smtpd_tls_loglevel = 1
 """>>/etc/postfix/main.cf
-echo """smtpd_milters = inet:127.0.0.1:8891
-non_smtpd_milters = \$smtpd_milters
-milter_default_action = accept
-""">>/etc/postfix/main.cf
+#echo """smtpd_milters = inet:127.0.0.1:8891
+#non_smtpd_milters = \$smtpd_milters
+#milter_default_action = accept
+#""">>/etc/postfix/main.cf
 
 #/etc/dovecot/dovecot.conf
 sed -i -e "/#protocols/aprotocols\ =\ imap\ pop3" /etc/dovecot/dovecot.conf

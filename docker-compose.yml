@@ -12,7 +12,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /mnt:/mnt
       - /home/docker_home:/home
-      - /etc/opendkim/:/etc/opendkim/
+      #- /etc/opendkim/:/etc/opendkim/
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/log/docker_log/:/var/log/
     image: mail
