@@ -15,7 +15,7 @@ sed -i -e "s/\$domain/$domain/g" Dockerfile
 
 #set permission
 mkdir -p /etc/opendkim
-mkdir -p /etc/opendkim
+mkdir -p /var/log/docker_log
 mkdir -p /home/docker_home
 chmod 777 /etc/opendkim
 chmod 777 /var/log/docker_log

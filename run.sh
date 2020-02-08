@@ -90,6 +90,9 @@ echo "*@$domain $(date "+%Y%m%d")._domainkey.$domain" >> /etc/opendkim/SigningTa
 sed -i -e "/imjournal/ s/^/#/" \
 	-e "s/off/on/" /etc/rsyslog.conf
 
+#/etc/pam.d/dovecot
+sed -e "/pam_nologin/ s/auth/\#auth/" /etc/pam.d/dovecot
+
 #start mail program
 /usr/sbin/rsyslogd
 
