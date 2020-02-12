@@ -13,14 +13,6 @@ domain=$(cat general.log |grep your_domain|cut -f 2 -d ":")
 sed -i -e "s/\$domain/$domain/g" run.sh
 sed -i -e "s/\$domain/$domain/g" Dockerfile
 
-#set permission
-mkdir -p /etc/opendkim
-mkdir -p /var/log/docker_log
-mkdir -p /home/docker_home
-chmod 777 /etc/opendkim
-chmod 777 /var/log/docker_log
-chmod 777 /home/docker_home
-
 echo """127.0.0.1
 mail.$domain
 $domain""" >TrustedHosts

@@ -25,10 +25,6 @@ smtpd_tls_session_cache_timeout = 3600s
 smtpd_tls_received_header = yes
 smtpd_tls_loglevel = 1
 """>>/etc/postfix/main.cf
-#echo """smtpd_milters = inet:127.0.0.1:8891
-#non_smtpd_milters = \$smtpd_milters
-#milter_default_action = accept
-#""">>/etc/postfix/main.cf
 
 #/etc/dovecot/dovecot.conf
 sed -i -e "/#protocols/aprotocols\ =\ imap\ pop3" /etc/dovecot/dovecot.conf
@@ -66,6 +62,23 @@ sed -i -e "s/#submission/submission/" \
         -e "/smtpd_relay_restrictions/ s/^#//" \
 	-e "$(grep -m1 -n smtpd_relay_restrictions /etc/postfix/master.cf|sed s/:.*//) s/^/#/" /etc/postfix/master.cf
 
+#/etc/rsyslog.conf
+sed -i -e "/imjournal/ s/^/#/" \
+	-e "s/off/on/" /etc/rsyslog.conf
+
+#/etc/pam.d/dovecot
+sed -i -e "/pam_nologin/ s/auth/\#auth/" /etc/pam.d/dovecot
+
+
+#----------DKIM setting----------
+<<DKIM-setting
+
+#/etc/postfix/main.cf
+echo """smtpd_milters = inet:127.0.0.1:8891
+non_smtpd_milters = \$smtpd_milters
+milter_default_action = accept
+""">>/etc/postfix/main.cf
+
 #opendkim
 mkdir -p /etc/opendkim/keys/$domain/
 opendkim-genkey -D /etc/opendkim/keys/$domain/ -d $domain -s $(date "+%Y%m%d")
@@ -86,17 +99,13 @@ echo "$(date "+%Y%m%d")._domainkey.$domain $domain:$(date "+%Y%m%d"):/etc/opendk
 #/etc/opendkim/SigningTable
 echo "*@$domain $(date "+%Y%m%d")._domainkey.$domain" >> /etc/opendkim/SigningTable
 
-#/etc/rsyslog.conf
-sed -i -e "/imjournal/ s/^/#/" \
-	-e "s/off/on/" /etc/rsyslog.conf
+#start mail program
+/usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
+DKIM-setting
 
-#/etc/pam.d/dovecot
-sed -i -e "/pam_nologin/ s/auth/\#auth/" /etc/pam.d/dovecot
 
 #start mail program
 /usr/sbin/rsyslogd
-
-#/usr/sbin/opendkim -x /etc/opendkim.conf -P /var/run/opendkim/opendkim.pid
 
 /usr/libexec/postfix/aliasesdb && \
 	/usr/libexec/postfix/chroot-update && \

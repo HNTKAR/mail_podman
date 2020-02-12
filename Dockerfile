@@ -12,4 +12,4 @@ EXPOSE 25 995 993 465 587
 
 COPY run.sh  /usr/local/bin/
 RUN  chmod 755 /usr/local/bin/run.sh
-COPY TrustedHosts /etc/opendkim/
+#COPY TrustedHosts /etc/opendkim/

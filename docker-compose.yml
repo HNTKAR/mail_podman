@@ -1,7 +1,9 @@
 version: '3.7'
 services:
-  mail_img:
+  mail:        
     build: .
+    image: mail
+    container_name: mail
     ports:
       - "25:25"
       - "465:465"
@@ -9,11 +11,11 @@ services:
       - "993:993"
       - "995:995"
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /mnt:/mnt
-      - /home/docker_home:/home
       #- /etc/opendkim/:/etc/opendkim/
+      - /home/docker_home:/home
       - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /var/log/docker_log/:/var/log/
-    image: mail
-    container_name: mail
+      - /var/log/docker_log/mail:/var/log/
+networks:
+  default:
+    external:
+      name: bridge
