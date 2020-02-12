@@ -18,4 +18,4 @@ services:
 networks:
   default:
     external:
-      name: default
+      name: default_bridge
