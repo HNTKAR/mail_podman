@@ -3,8 +3,8 @@ MAINTAINER kusari-k
 
 RUN dnf update -y
 RUN dnf install -y rsyslog dovecot postfix epel-release passwd
-RUN dnf install -y https://extras.getpagespeed.com/release-el8-latest.rpm
-RUN dnf install -y opendkim 
+#RUN dnf install -y https://extras.getpagespeed.com/release-el8-latest.rpm
+#RUN dnf install -y opendkim 
 RUN dnf update -y
 RUN dnf clean all
 
