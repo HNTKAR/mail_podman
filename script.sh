@@ -10,7 +10,7 @@ sed -z s/.*#mail//  setting.txt |
 	\sed '1d' >setting_mail.log
 domain=$(cat general.log |grep your_domain|cut -f 2 -d ":")
 
-sed -i -e "s/\$domain/$domain/g" run.sh
+sed -i -e "s/\$domain/$domain/g" prerun.sh
 sed -i -e "s/\$domain/$domain/g" Dockerfile
 
 echo """127.0.0.1

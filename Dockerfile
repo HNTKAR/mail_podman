@@ -12,4 +12,7 @@ EXPOSE 25 995 993 465 587
 
 COPY run.sh  /usr/local/bin/
 RUN  chmod 755 /usr/local/bin/run.sh
+COPY prerun.sh  /usr/local/bin/
+RUN  chmod 755 /usr/local/bin/prerun.sh
+RUN  /usr/local/bin/prerun.sh
 #COPY TrustedHosts /etc/opendkim/
