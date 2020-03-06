@@ -1,24 +1,34 @@
 #!/bin/bash
 
 #read setting file
-sed -z s/.*#general//  setting.txt |
-	\sed -z s/#.*// |
-	\sed -e /^$/d >general.log
-sed -z s/.*#mail//  setting.txt |
-	\sed -z s/#.*// |
-	\sed -e /^$/d |
-	\sed '1d' >setting_mail.log
-domain=$(cat general.log |grep your_domain|cut -f 2 -d ":")
+sed -e "s/^##.*//g"  setting.txt |\
+       	sed -ze "s/.*=====general=====//g" \
+	-e  "s/=====.*//g" |\
+	sed -e /^$/d>general.log
+
+
+sed -e "s/^##.*//g"  setting.txt |\
+	sed -ze "s/.*=====mail=====//g" \
+	-e  "s/=====.*//g" |\
+	sed -ze "s/.*-----system data-----//g" \
+	-e "s/-----.*//g" |\
+	sed -e /^$/d>mail-system.log
+
+sed -e "s/^##.*//g"  setting.txt |\
+	sed -ze "s/.*=====mail=====//g" \
+	-e  "s/=====.*//g" |\
+	sed -ze "s/.*-----user data-----//g" \
+	-e "s/-----.*//g" |\
+	sed -e /^$/d>mail-user.log
+
+domain=$(cat general.log |grep domain|cut -f 2 -d ":")
+FQDN=$(cat mail-system.log |grep FQDN|cut -f 2 -d ":")
 
 sed -i -e "s/\$domain/$domain/g" prerun.sh
-sed -i -e "s/\$domain/$domain/g" Dockerfile
-
-echo """127.0.0.1
-mail.$domain
-$domain""" >TrustedHosts
+sed -i -e "s/\$FQDN/$FQDN/g" prerun.sh
 
 #write files
-cat setting_mail.log |awk -F ":" -f script.awk
+cat mail-user.log |awk -F ":" -f script.awk
 echo -e "\nENTRYPOINT [\"/usr/local/bin/run.sh\"]">>Dockerfile
 
 read -p "do you want to up this container ? (y/n):" yn
