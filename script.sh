@@ -1,11 +1,9 @@
 #!/bin/bash
-
 #read setting file
 sed -e "s/^##.*//g"  setting.txt |\
        	sed -ze "s/.*=====general=====//g" \
 	-e  "s/=====.*//g" |\
 	sed -e /^$/d>general.log
-
 
 sed -e "s/^##.*//g"  setting.txt |\
 	sed -ze "s/.*=====mail=====//g" \

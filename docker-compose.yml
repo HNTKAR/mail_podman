@@ -4,6 +4,7 @@ services:
     build: .
     image: mail
     container_name: mail
+    restart: always
     ports:
       - "25:25"
       - "465:465"
