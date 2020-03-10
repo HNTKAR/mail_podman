@@ -22,6 +22,8 @@ sed -e "s/^##.*//g"  setting.txt |\
 domain=$(cat general.log |grep domain|cut -f 2 -d ":")
 FQDN=$(cat mail-system.log |grep FQDN|cut -f 2 -d ":")
 
+mkdir -m 777 -p  /home/docker_home/
+
 sed -i -e "s/\$domain/$domain/g" prerun.sh
 sed -i -e "s/\$FQDN/$FQDN/g" prerun.sh
 
