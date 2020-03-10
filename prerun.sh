@@ -68,3 +68,17 @@ sed -i -e "/imjournal/ s/^/#/" \
 
 #/etc/pam.d/dovecot
 sed -i -e "/pam_nologin/ s/auth/\#auth/" /etc/pam.d/dovecot
+
+#start mail program
+echo """
+#start mail program
+/usr/sbin/rsyslogd
+
+/usr/libexec/postfix/aliasesdb && \
+	/usr/libexec/postfix/chroot-update && \
+	/usr/sbin/postfix start
+
+/usr/libexec/dovecot/prestartscript && \
+	/usr/sbin/dovecot
+
+tail -f /dev/null """>>/usr/local/bin/run.sh
