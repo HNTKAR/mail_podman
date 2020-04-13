@@ -12,7 +12,7 @@ services:
       - "993:993"
       - "995:995"
     volumes:
-      - /home/docker_home:/home
+      - /home/docker_home/mail/:/home
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/log/docker_log/mail:/var/log/
 networks:
