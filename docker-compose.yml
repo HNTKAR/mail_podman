@@ -1,9 +1,14 @@
 version: '3.7'
+
 services:
-  mail:        
-    build: .
-    image: mail
-    container_name: mail
+  MAIL:
+    build:
+      context: .
+      args:
+        main_FQDN: example.com
+        main_DOMAIN: example.com
+    image: test_mail
+    container_name: test_MAIL
     restart: always
     ports:
       - "25:25"
@@ -12,9 +17,10 @@ services:
       - "993:993"
       - "995:995"
     volumes:
-      - /home/docker_home/mail/:/home
       - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /var/log/docker_log/mail:/var/log/
+      - /home/docker_home/mail/localhost:/home
+      - /var/log/docker_log/mail:/var/log
+
 networks:
   default:
     external:
