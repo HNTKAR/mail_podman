@@ -1,12 +1,13 @@
 version: '3.7'
 
 services:
-  MAIL:
+  test_MAIL:
     build:
       context: .
       args:
-        main_FQDN: example.com
-        main_DOMAIN: example.com
+        SSL_DOMAIN: mail.example.com
+        virtual_DOMAIN: mail.example.com,mail.example.org
+        alias_DOMAIN: example.com,example.org
     image: test_mail
     container_name: test_MAIL
     restart: always
@@ -18,7 +19,7 @@ services:
       - "995:995"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /home/docker_home/mail/localhost:/home
+      #- /home/docker_home/mail:/home/virtualhost
       - /var/log/docker_log/mail:/var/log
 
 networks:

@@ -34,8 +34,9 @@ sed -e "s/^##.*//g"  setting.txt | \
 mkdir -m 777 -p  /home/docker_home/
 
 #set docker-compose.yml
-sed -i -e "/main_FQDN/ s/:.*/:\ $(grep main_FQDN system.log | sed s/.*://)/" docker-compose.yml
-sed -i -e "/main_DOMAIN/ s/:.*/:\ $(grep main_DOMAIN system.log | sed s/.*://)/" docker-compose.yml
+sed -i -e "/SSL_DOMAIN/ s/:.*/:\ $(grep SSL_DOMAIN system.log | sed s/.*://)/" docker-compose.yml
+sed -i -e "/virtual_DOMAIN/ s/:.*/:\ $(grep virtual_DOMAIN system.log | sed s/.*://)/" docker-compose.yml
+sed -i -e "/alias_DOMAIN/ s/:.*/:\ $(grep alias_DOMAIN system.log | sed s/.*://)/" docker-compose.yml
 
 read -p "do you want to up this container ? (y/n):" yn
 if [ ${yn,,} = "y" ]; then

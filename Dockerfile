@@ -3,27 +3,28 @@ MAINTAINER kusari-k
 
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
-	dnf install -y rsyslog dovecot postfix epel-release && \
+	dnf install -y rsyslog dovecot postfix && \
 	dnf clean all
 
 EXPOSE 25 465 587 993 995
-ARG main_FQDN="mail.example.com"
-ARG main_DOMAIN="example.com"
+ARG SSL_DOMAIN="mail.example.com"
+ARG virtual_DOMAIN="mail.example.com,mail.example.org"
+ARG alias_DOMAIN="example.com,example.org"
 
 #/etc/postfix/main.cf
-RUN sed -i -e "/host.domain.tld/a myhostname\ =\ $main_FQDN" \
-	-e "/#mydomain/a mydomain\ =\ $main_DOMAIN" \
+RUN sed -i -e "/host.domain.tld/a myhostname\ =\ localhost" \
+	-e "/#mydomain/a mydomain\ =\ localhost" \
 	-e "/#inet.*all/ s/^#//" \
 	-e "/^inet.*localhost$/ s/^/#/" \
 	-e "/inet_protocols/ s/all/ipv4/" \
+	-e "/^mydestination/a mydestination\ =\ localhost" \
 	-e "/^mydestination/ s/^/#/" \
-	-e "/^#mydestination.*\$mydomain\$/ s/^#//" \
 	-e "/#local_recipient_maps\ =\ unix/ s/^#//" \
 	-e "/#home_mailbox.*dir\/$/ s/^#//" \
 	-e "/#smtpd.*name\$/a smtpd_banner\ =\ \$myhostname ESMTP" \
-	-e "/smtpd_tls_cert_file/ s/\/.*/\/etc\/letsencrypt\/live\/$main_FQDN\/fullchain.pem/" \
-	-e "/smtpd_tls_key_file/ s/\/.*/\/etc\/letsencrypt\/live\/$main_FQDN\/privkey.pem/" \
-	-e "\$a masquerade_domains = $main_DOMAIN" \
+	-e "/smtpd_tls_cert_file/ s/\/.*/\/etc\/letsencrypt\/live\/$SSL_DOMAIN\/fullchain.pem/" \
+	-e "/smtpd_tls_key_file/ s/\/.*/\/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
+	-e "\$a masquerade_domains = $alias_DOMAIN" \
 	-e "\$a smtpd_sasl_auth_enable = yes" \
 	-e "\$a smtpd_sasl_type = dovecot" \
 	-e "\$a smtpd_sasl_path = private/auth" \
@@ -33,7 +34,13 @@ RUN sed -i -e "/host.domain.tld/a myhostname\ =\ $main_FQDN" \
 	-e "\$a smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache" \
 	-e "\$a smtpd_tls_session_cache_timeout = 3600s" \
 	-e "\$a smtpd_tls_received_header = yes" \
-	-e "\$a smtpd_tls_loglevel = 1" /etc/postfix/main.cf
+	-e "\$a smtpd_tls_loglevel = 1" \
+	-e "\$a virtual_mailbox_domains = $alias_DOMAIN" \
+	-e "\$a virtual_mailbox_base = /home/mailer" \
+	-e "\$a virtual_mailbox_maps = hash:/etc/postfix/virtual_mailbox" \
+	-e "\$a virtual_uid_maps = static:50000" \
+	-e "\$a virtual_gid_maps = static:50000" \
+	-e "\$a virtual_alias_maps = hash:/etc/postfix/virtual_alias" /etc/postfix/main.cf
 
 #/etc/dovecot/dovecot.conf
 RUN sed -i -e "/#protocols/a protocols\ =\ imap\ pop3" /etc/dovecot/dovecot.conf
@@ -47,8 +54,8 @@ RUN sed -i -e "/#disable/ s/yes/no/" \
 RUN sed -i -e "/^#mail_location/a mail_location\ =\ maildir:~\/Maildir" /etc/dovecot/conf.d/10-mail.conf
 
 #/etc/dovecot/conf.d/10-ssl.conf
-RUN sed -i -e "s/pki\/dovecot\/certs\/dovecot.pem/letsencrypt\/live\/$main_FQDN\/fullchain.pem/" \
-	-e "s/pki\/dovecot\/private\/dovecot.pem/letsencrypt\/live\/$main_FQDN\/privkey.pem/" /etc/dovecot/conf.d/10-ssl.conf
+RUN sed -i -e "s/pki\/dovecot\/certs\/dovecot.pem/letsencrypt\/live\/$SSL_DOMAIN\/fullchain.pem/" \
+	-e "s/pki\/dovecot\/private\/dovecot.pem/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" /etc/dovecot/conf.d/10-ssl.conf
 
 #/etc/dovecot/conf.d/10-master.conf
 RUN sed -i -e "/#unix/a \ \ mode\ =\ 0666" \
@@ -71,12 +78,21 @@ RUN sed -i -e "s/#submission/submission/" \
 	-e "/smtpd_relay_restrictions/ s/^#//" \
 	-e "$(grep -m1 -n smtpd_relay_restrictions /etc/postfix/master.cf|sed s/:.*//) s/^/#/" /etc/postfix/master.cf
 
+#/etc/sasl2/smtpd.conf
+RUN sed -i -e "s/saslauthd/auxprop/" /etc/sasl2/smtpd.conf
+
+#/etc/dovecot/conf.d/10-auth.conf
+RUN sed -i -e "/auth-system/ s/^/#/" \
+	-e "/auth-passwdfile/ s/^#//" /etc/dovecot/conf.d/10-auth.conf
+
+#/etc/dovecot/conf.d/auth-passwdfile.conf.ext
+RUN sed -i -e "/args/ s/=.*/=\ \/etc\/dovecot\/passwd/" /etc/dovecot/conf.d/auth-passwdfile.conf.ext
+
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
 	-e "s/off/on/" /etc/rsyslog.conf
 
-#/etc/pam.d/dovecot
-RUN sed -i -e "/pam_nologin/ s/auth/\#auth/" /etc/pam.d/dovecot
+RUN useradd -m -u 50000 -s /sbin/nologin mailer
 
 COPY run.sh  /usr/local/bin/
 COPY user.log  /usr/local/bin/
