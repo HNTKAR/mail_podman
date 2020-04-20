@@ -15,7 +15,10 @@ if [ $relay = "on" ] && [ -e /usr/local/bin/user.log ]; then
 		-e "s/$/:587\ /" /usr/local/bin/password.log>/usr/local/bin/temp.log
 	paste /usr/local/bin/temp.log /usr/local/bin/password.log>/etc/postfix/sasl_password 
 	sed -i -e "/^virtual/d" /etc/postfix/main.cf
+	touch /etc/postfix//etc/postfix/sasl_password 
+	postmap /etc/postfix//etc/postfix/sasl_password 
 	rm /usr/local/bin/*.log
+
 elif [ -e /usr/local/bin/user.log ]; then
 	echo "test2">>test.sample
 	sed -i -e "/^smtp_sasl_password_maps/d" /etc/postfix/main.cf
@@ -27,15 +30,15 @@ elif [ -e /usr/local/bin/user.log ]; then
 	xargs -n 3 -a /usr/local/bin/user.log bash -c 'echo $2 | saslpasswd2 -c -u $1 $0'
 	xargs -n 3 -a /usr/local/bin/user.log bash -c 'echo "$0@$1:$(doveadm pw -s SHA512-CRYPT -p $2):50000:500000:::::Maildir:/home/mailer/$1/$0/Maildir/">>/etc/dovecot/passwd'
 	chown -R postfix:postfix /etc/sasldb2
-	touch /etc/postfix/virtual_alias
+	touch /etc/postfix/virtual_mailbox && \
+	postmap /etc/postfix/virtual_mailbox
+	touch /etc/postfix/virtual_alias && \
+	postmap /etc/postfix/virtual_alias
 	rm /usr/local/bin/*.log
 fi
 
-echo "test3">>test.sample
 #start postfix
-postmap /etc/postfix/virtual_mailbox && \
-	postmap /etc/postfix/virtual_alias && \
-	/usr/libexec/postfix/aliasesdb && \
+/usr/libexec/postfix/aliasesdb && \
 	/usr/libexec/postfix/chroot-update && \
 	postfix start
 
