@@ -34,6 +34,7 @@ sed -e "s/^##.*//g"  setting.txt | \
 mkdir -m 777 -p  /home/docker_home/
 
 #set docker-compose.yml
+sed -i -e "/relay/ s/=.*/=$(grep relay system.log | sed s/.*://)/" docker-compose.yml
 sed -i -e "/SSL_DOMAIN/ s/:.*/:\ $(grep SSL_DOMAIN system.log | sed s/.*://)/" docker-compose.yml
 sed -i -e "/virtual_DOMAIN/ s/:.*/:\ $(grep virtual_DOMAIN system.log | sed s/.*://)/" docker-compose.yml
 sed -i -e "/alias_DOMAIN/ s/:.*/:\ $(grep alias_DOMAIN system.log | sed s/.*://)/" docker-compose.yml

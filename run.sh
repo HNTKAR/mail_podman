@@ -3,7 +3,22 @@
 #start rsyslog
 rsyslogd
 
-if [ -e /usr/local/bin/user.log ]; then
+if [ $relay = "on" ] && [ -e /usr/local/bin/user.log ]; then
+	echo "test1">>test.sample
+	grep "^virtual_mailbox_domains" /etc/postfix/main.cf | \
+		sed -e "/^virtual_mailbox_domains/ s/,/\n/g" \
+			-e "s/.*=//g">/usr/local/bin/domain.log
+	xargs -a /usr/local/bin/domain.log -I {} echo "relayhost = {}:587">>/etc/postfix/main.cf
+	xargs -a /usr/local/bin/domain.log -I {} grep -m 1 {} /usr/local/bin/user.log>/usr/local/bin/password.log
+	sed -e "s/.*@//g" \
+		-e "s/:.*//g" \
+		-e "s/$/:587\ /" /usr/local/bin/password.log>/usr/local/bin/temp.log
+	paste /usr/local/bin/temp.log /usr/local/bin/password.log>/etc/postfix/sasl_password 
+	sed -i -e "/^virtual/d" /etc/postfix/main.cf
+	rm /usr/local/bin/*.log
+elif [ -e /usr/local/bin/user.log ]; then
+	echo "test2">>test.sample
+	sed -i -e "/^smtp_sasl_password_maps/d" /etc/postfix/main.cf
 	sed -i -e "s/\@/\ /g" \
 		-e "s/:/\ /g" /usr/local/bin/user.log
 	xargs -n 3 -a /usr/local/bin/user.log bash -c 'mkdir -p /home/mailer/$1/$0/Maildir'
@@ -13,9 +28,10 @@ if [ -e /usr/local/bin/user.log ]; then
 	xargs -n 3 -a /usr/local/bin/user.log bash -c 'echo "$0@$1:$(doveadm pw -s SHA512-CRYPT -p $2):50000:500000:::::Maildir:/home/mailer/$1/$0/Maildir/">>/etc/dovecot/passwd'
 	chown -R postfix:postfix /etc/sasldb2
 	touch /etc/postfix/virtual_alias
-	rm /usr/local/bin/.*\.log
+	rm /usr/local/bin/*.log
 fi
 
+echo "test3">>test.sample
 #start postfix
 postmap /etc/postfix/virtual_mailbox && \
 	postmap /etc/postfix/virtual_alias && \

@@ -35,6 +35,7 @@ RUN sed -i -e "/host.domain.tld/a myhostname\ =\ localhost" \
 	-e "\$a smtpd_tls_session_cache_timeout = 3600s" \
 	-e "\$a smtpd_tls_received_header = yes" \
 	-e "\$a smtpd_tls_loglevel = 1" \
+	-e "\$a smtp_sasl_password_maps = hash:/etc/postfix/sasl_password" \
 	-e "\$a virtual_mailbox_domains = $alias_DOMAIN" \
 	-e "\$a virtual_mailbox_base = /home/mailer" \
 	-e "\$a virtual_mailbox_maps = hash:/etc/postfix/virtual_mailbox" \

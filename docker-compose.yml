@@ -1,15 +1,17 @@
 version: '3.7'
 
 services:
-  test_MAIL:
+  MAIL:
     build:
       context: .
       args:
         SSL_DOMAIN: mail.example.com
         virtual_DOMAIN: mail.example.com,mail.example.org
         alias_DOMAIN: example.com,example.org
-    image: test_mail
-    container_name: test_MAIL
+    environment: 
+      - relay=on
+    image: mail
+    container_name: MAIL
     restart: always
     ports:
       - "25:25"
@@ -19,7 +21,7 @@ services:
       - "995:995"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
-      #- /home/docker_home/mail:/home/virtualhost
+      - /home/docker_home/mail:/home/mailer
       - /var/log/docker_log/mail:/var/log
 
 networks:
