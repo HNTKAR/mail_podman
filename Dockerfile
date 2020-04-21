@@ -20,6 +20,7 @@ RUN sed -i -e "/host.domain.tld/a myhostname\ =\ localhost" \
 	-e "/^mydestination/a mydestination\ =\ localhost" \
 	-e "/^mydestination/ s/^/#/" \
 	-e "/#local_recipient_maps\ =\ unix/ s/^#//" \
+	-e "/^#mynetworks_style.*host/ s/#//" \
 	-e "/#home_mailbox.*dir\/$/ s/^#//" \
 	-e "/#smtpd.*name\$/a smtpd_banner\ =\ \$myhostname ESMTP" \
 	-e "/smtpd_tls_cert_file/ s/\/.*/\/etc\/letsencrypt\/live\/$SSL_DOMAIN\/fullchain.pem/" \
@@ -30,11 +31,13 @@ RUN sed -i -e "/host.domain.tld/a myhostname\ =\ localhost" \
 	-e "\$a smtpd_sasl_path = private/auth" \
 	-e "\$a broken_sasl_auth_clients = yes" \
 	-e "\$a smtpd_recipient_restrictions = permit_sasl_authenticated reject_unauth_destination" \
-	-e "\$a smtp_tls_security_level = may" \
 	-e "\$a smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache" \
 	-e "\$a smtpd_tls_session_cache_timeout = 3600s" \
 	-e "\$a smtpd_tls_received_header = yes" \
 	-e "\$a smtpd_tls_loglevel = 1" \
+	-e "\$a transport_maps = hash:/etc/postfix/transport" \
+	-e "\$a relay_domains = $alias_DOMAIN" \
+	-e "\$a unknown_relay_recipient_reject_code = 550" \
 	-e "\$a smtp_sasl_password_maps = hash:/etc/postfix/sasl_password" \
 	-e "\$a virtual_mailbox_domains = $alias_DOMAIN" \
 	-e "\$a virtual_mailbox_base = /home/mailer" \
