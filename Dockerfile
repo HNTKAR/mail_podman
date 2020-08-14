@@ -1,14 +1,26 @@
 FROM centos
 MAINTAINER kusari-k
 
+ARG SSL_DOMAIN 
+ARG USER_DOMAIN
+
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
-	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
+	dnf install -y rsyslog postfix cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
 	dnf clean all
 
-EXPOSE 25 465 587 993 995
+EXPOSE 25 587 993 995 110 119 143 406 563 993 995 1109 2003 2004 2005 3905 4190
 
 #/etc/postfix/main.cf
+RUN postconf -e "inet_interfaces=all" && \
+	postconf -e "mydestination=localhost" && \
+	postconf -e "smtpd_tls_cert_file=/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" && \
+	postconf -e "smtpd_tls_key_file=/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \
+	postconf -e "myhostname=localhost" && \
+	postconf -e "home_mailbox = Maildir/"
+
+#postconf -e "masquerade_domains ="
+#postconf -e ""
 #RUN sed -i -e "/host.domain.tld/a myhostname\ =\ localhost" \
 #	-e "/#mydomain/a mydomain\ =\ localhost" \
 #	-e "/#inet.*all/ s/^#//" \
@@ -80,7 +92,7 @@ EXPOSE 25 465 587 993 995
 #	-e "$(grep -m1 -n smtpd_relay_restrictions /etc/postfix/master.cf|sed s/:.*//) s/^/#/" /etc/postfix/master.cf
 
 #/etc/sasl2/smtpd.conf
-#RUN sed -i -e "s/saslauthd/auxprop/" /etc/sasl2/smtpd.conf
+RUN sed -i -e "s/saslauthd/auxprop/" /etc/sasl2/smtpd.conf
 
 #/etc/dovecot/conf.d/10-auth.conf
 #RUN sed -i -e "/auth-system/ s/^/#/" \
