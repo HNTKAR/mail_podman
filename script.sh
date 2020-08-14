@@ -14,7 +14,7 @@ export USER_DOMAIN=$(grep hostname setting.txt|sed "s/.*://")
 read -p "do you want to up this container ? (y/n):" yn
 if [ ${yn,,} = "y" ]; then
 	podman rmi -f mail
-	podman build -f Dockerfile -t mail:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN
+	podman build -f Dockerfile -t mail:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN
 fi
 
 rm *.log
