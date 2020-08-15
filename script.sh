@@ -7,8 +7,8 @@ cd $(dirname $0)
 sed -z -e "s/.*##\+mail#*//g" \
 	-e "s/##.\+//g" setting.txt >setting.log
 
-export SSL_DOMAIN=$(grep ssl_domain setting.txt|sed "s/.*://")
-export USER_DOMAIN=$(grep hostname setting.txt|sed "s/.*://")
+export SSL_DOMAIN=$(grep ssl_domain setting.log|sed "s/.*://")
+export USER_DOMAIN=$(grep hostname setting.log|sed "s/.*://")
 
 #build image
 read -p "do you want to up this container ? (y/n):" yn
