@@ -6,6 +6,9 @@
 ###mail###
 ssl_domain:example.com
 hostname:example.com,example.org,example.net
+user:email1:password1
+user:email2:password2
+user:email3:password3
 ```
 
 ## _up container_

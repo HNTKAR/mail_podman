@@ -12,6 +12,7 @@ RUN dnf update -y && \
 	dnf clean all
 
 COPY setting.log run.sh /usr/local/bin/
+COPY /home/podman/certbot_pod/letsencrypt/ /etc/letsencrypt/
 
 #/etc/postfix/main.cf
 RUN postconf -e "inet_interfaces=all" && \
@@ -30,9 +31,6 @@ RUN postconf -e "inet_interfaces=all" && \
 	postconf -e "inet_protocols =ipv4" && \
 	postconf -e "local_recipient_maps=proxy:unix:passwd.byname $alias_maps hash:/etc/postfix/vmailbox" && \
 	postconf -e "smtpd_banner = ESMTP" 
-
-RUN mkdir -p -m 750 /var/lib/cyrus /var/spool/cyrus  && \
-	chown -R cyrus:mail /var/lib/cyrus /var/spool/cyrus
 
 #/etc/imapd.conf
 RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
@@ -67,20 +65,26 @@ RUN smtps_num=$(grep -n "^#smtps" /etc/postfix/master.cf|sed s/:.*//) && \
 #	-e "$(grep -m1 -n smtpd_relay_restrictions /etc/postfix/master.cf|sed s/:.*//) s/^/#/" /etc/postfix/master.cf
 
 #/etc/sasl2/smtpd.conf
-RUN sed -i -e "s/saslauthd/auxprop/" /etc/sasl2/smtpd.conf
+RUN sed -i -e "s/saslauthd/auxprop/" /etc/sasl2/smtpd.conf 
 
 #user setting
-RUN grep "^user:" setting.log | \
+RUN grep "^user:" /usr/local/bin/setting.log | \
 	sed "s/^user://" | \
 	awk -F '[:@]' '{print $1,$2,$3}' | \
-	sed -ze "s/\n/ /g" | \
-	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -p -u $1 $0'
+	sed -ze "s/\n/ /g" | \ 
+	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -u $1 $0'
 
-RUN grep "^user:" setting.log | \
+RUN grep "^user:" /usr/local/bin/setting.log | \
 	sed "s/^user://" | \
-	awk -F '[:]' '{print $1,$1}' > /etc/postfix/vmailbox && |
+	awk -F '[:]' '{print $1,$1}' > /etc/postfix/vmailbox && \
 	postmap /etc/postfix/vmailbox
 	
+#authority setting
+RUN mkdir -p -m 750 /var/lib/cyrus /var/spool/cyrus  && \
+	chown -R cyrus:mail /var/lib/cyrus /var/spool/cyrus && \
+	chmod 777 /etc/sasldb2 && \
+	chmod -R 777 /etc/letsencrypt/ && \
+	chmod 777 /etc/postfix/vmailbox
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
