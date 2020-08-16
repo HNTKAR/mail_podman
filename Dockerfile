@@ -8,11 +8,11 @@ EXPOSE 25 587 993 995 110 119 143 406 563 993 995 1109 2003 2004 2005 3905 4190
 
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
-	dnf install -y rsyslog postfix cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
+	dnf install -y rsyslog postfix cyrus-imapd cyrus-sasl cyrus-sasl-plain telnet && \
 	dnf clean all
 
 COPY setting.log run.sh /usr/local/bin/
-COPY /home/podman/certbot_pod/letsencrypt/ /etc/letsencrypt/
+COPY letsencrypt /etc/letsencrypt
 
 #/etc/postfix/main.cf
 RUN postconf -e "inet_interfaces=all" && \
@@ -30,7 +30,8 @@ RUN postconf -e "inet_interfaces=all" && \
 	postconf -e "masquerade_domains =$USER_DOMAIN" && \
 	postconf -e "inet_protocols =ipv4" && \
 	postconf -e "local_recipient_maps=proxy:unix:passwd.byname $alias_maps hash:/etc/postfix/vmailbox" && \
-	postconf -e "smtpd_banner = ESMTP" 
+	postconf -e "smtpd_banner = ESMTP" && \
+	postconf -e "smtpd_tls_loglevel = 2" 
 
 #/etc/imapd.conf
 RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
@@ -65,7 +66,8 @@ RUN smtps_num=$(grep -n "^#smtps" /etc/postfix/master.cf|sed s/:.*//) && \
 #	-e "$(grep -m1 -n smtpd_relay_restrictions /etc/postfix/master.cf|sed s/:.*//) s/^/#/" /etc/postfix/master.cf
 
 #/etc/sasl2/smtpd.conf
-RUN sed -i -e "s/saslauthd/auxprop/" /etc/sasl2/smtpd.conf 
+RUN sed -i -e "s/saslauthd/auxprop/" \
+	-e "2i auxprop_plugin: sasldb" /etc/sasl2/smtpd.conf 
 
 #user setting
 RUN grep "^user:" /usr/local/bin/setting.log | \
@@ -83,8 +85,8 @@ RUN grep "^user:" /usr/local/bin/setting.log | \
 RUN mkdir -p -m 750 /var/lib/cyrus /var/spool/cyrus  && \
 	chown -R cyrus:mail /var/lib/cyrus /var/spool/cyrus && \
 	chmod 777 /etc/sasldb2 && \
-	chmod -R 777 /etc/letsencrypt/ && \
-	chmod 777 /etc/postfix/vmailbox
+	chmod -R 777 /etc/letsencrypt && \
+	chmod 644 /etc/postfix/vmailbox
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \

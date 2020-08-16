@@ -9,6 +9,7 @@ sed -z -e "s/.*##\+mail#*//g" \
 
 export SSL_DOMAIN=$(grep ssl_domain setting.log|sed "s/.*://")
 export USER_DOMAIN=$(grep hostname setting.log|sed "s/.*://")
+\cp -frp /home/podman/certbot_pod/letsencrypt .
 
 #build image
 read -p "do you want to up this container ? (y/n):" yn

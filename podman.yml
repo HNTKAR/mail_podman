@@ -1,0 +1,47 @@
+# Generation of Kubernetes YAML is still under development!
+#
+# Save the output of this file and use kubectl create -f to import
+# it into Kubernetes.
+#
+# Created with podman-1.6.4
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: mail_pod
+  name: mail_pod
+spec:
+  containers:
+  - env:
+    - name: HOSTNAME
+      value: mail_pod
+    - name: container
+      value: podman
+    image: localhost/mail:latest
+    name: mail
+    ports:
+    - containerPort: 25
+      hostPort: 1025
+      protocol: TCP
+    - containerPort: 465
+      hostPort: 10465
+      protocol: TCP
+    - containerPort: 587
+      hostPort: 10587
+      protocol: TCP
+    - containerPort: 993
+      hostPort: 10993
+      protocol: TCP
+    - containerPort: 995
+      hostPort: 10995
+      protocol: TCP
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities: {}
+      privileged: false
+      readOnlyRootFilesystem: false
+    tty: true
+    workingDir: /
+status: {}
+
