@@ -39,7 +39,8 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_server_cert/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/fullchain.pem/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
-	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" /etc/imapd.conf
+	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
+	-e "$a defaultdomain: $SSL_DOMAIN" /etc/imapd.conf
 
 #	-e "\$a smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache" \
 #	-e "\$a smtpd_tls_session_cache_timeout = 3600s" \
@@ -90,7 +91,9 @@ RUN mkdir -p -m 750 /var/lib/cyrus /var/spool/cyrus  && \
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
-	-e "s/off/on/" /etc/rsyslog.conf
+	-e "s/off/on/" /etc/rsyslog.conf && \
+	echo "local6.*        /var/log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
+	echo "auth.debug      /var/log/auth.log" >> /etc/rsyslog.d/cyrus.conf
 
 RUN  chmod 755 /usr/local/bin/run.sh
 ENTRYPOINT ["/usr/local/bin/run.sh"]
