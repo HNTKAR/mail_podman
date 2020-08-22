@@ -40,7 +40,7 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
 	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
-	-e "$a defaultdomain: $SSL_DOMAIN" /etc/imapd.conf
+	-e "\$a defaultdomain: $SSL_DOMAIN" /etc/imapd.conf
 
 #	-e "\$a smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache" \
 #	-e "\$a smtpd_tls_session_cache_timeout = 3600s" \

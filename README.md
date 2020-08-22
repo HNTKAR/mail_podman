@@ -15,11 +15,12 @@ user:email3:password3
 
 ```
 ./script.sh
-sudo firewall-cmd --add-forward-port=port=465:proto=tcp:toport=10465 --permanent
-sudo firewall-cmd --add-forward-port=port=587:proto=tcp:toport=10587 --permanent
-sudo firewall-cmd --add-forward-port=port=993:proto=tcp:toport=10993 --permanent
-sudo firewall-cmd --add-forward-port=port=995:proto=tcp:toport=10995 --permanent
+sudo firewall-cmd --add-forward-port=port=465:proto=tcp:toport=10465
+sudo firewall-cmd --add-forward-port=port=587:proto=tcp:toport=10587
+sudo firewall-cmd --add-forward-port=port=993:proto=tcp:toport=10993
+sudo firewall-cmd --add-forward-port=port=995:proto=tcp:toport=10995
 podman play kube podman.yml
+sudo firewall-cmd --reload
 #podman run -itd --pod mail_pod -v /home/podman:/podman --name mail mail
 #podman exec -it mail bash
 ```
