@@ -93,7 +93,8 @@ RUN mkdir -p -m 750 /var/lib/cyrus /var/spool/cyrus  && \
 RUN sed -i -e "/imjournal/ s/^/#/" \
 	-e "s/off/on/" /etc/rsyslog.conf && \
 	echo "local6.*        /var/log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
-	echo "auth.debug      /var/log/auth.log" >> /etc/rsyslog.d/cyrus.conf
+	echo "auth.debug      /var/log/auth.log" >> /etc/rsyslog.d/cyrus.conf && \
+	touch /var/log/imapd.log /var/log/auth.log
 
 RUN  chmod 755 /usr/local/bin/run.sh
 ENTRYPOINT ["/usr/local/bin/run.sh"]
