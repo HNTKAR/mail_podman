@@ -40,7 +40,11 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
 	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
-	-e "\$a defaultdomain: $SSL_DOMAIN" /etc/imapd.conf
+	-e "\$a syslog_facility:LOCAL6" \
+	-e "\$a autocreate_post: yes" \
+	-e "\$a autocreate_quota_messages: 0" \
+	-e "\$a autocreate_quota: 0" \
+	-e "\$a defaultdomain: localhost" /etc/imapd.conf
 
 #	-e "\$a smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache" \
 #	-e "\$a smtpd_tls_session_cache_timeout = 3600s" \
@@ -68,7 +72,7 @@ RUN smtps_num=$(grep -n "^#smtps" /etc/postfix/master.cf|sed s/:.*//) && \
 
 #/etc/sasl2/smtpd.conf
 RUN sed -i -e "s/saslauthd/auxprop/" \
-	-e "2i auxprop_plugin: sasldb" /etc/sasl2/smtpd.conf 
+	-e "2i auxprop_plugin: sasldb2" /etc/sasl2/smtpd.conf 
 
 #user setting
 RUN grep "^user:" /usr/local/bin/setting.log | \
