@@ -26,17 +26,11 @@ spec:
     - containerPort: 143
       hostPort: 10143
       protocol: TCP
-    - containerPort: 465
-      hostPort: 10465
-      protocol: TCP
     - containerPort: 587
       hostPort: 10587
       protocol: TCP
     - containerPort: 993
       hostPort: 10993
-      protocol: TCP
-    - containerPort: 995
-      hostPort: 10995
       protocol: TCP
     resources: {}
     securityContext:
@@ -45,6 +39,34 @@ spec:
       privileged: false
       readOnlyRootFilesystem: false
     tty: true
+    volumeMounts:
+    - mountPath: /podman/postfix
+      name: postfix-volume
     workingDir: /
+  volumes:
+  - hostPath:
+      path: /home/podman/mail_pod/postfix
+      type: Directory
+    name: postfix-volume
+  - hostPath:
+      path: /home/podman/mail_pod/postfix_log
+      type: Directory
+    name: postfix-volume-log
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus_master
+      type: Directory
+    name: cyrus-master-volume
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus_master_log
+      type: Directory
+    name: cyrus-master-volume-log
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus_slave
+      type: Directory
+    name: cyrus-slave-volume
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus_slave_log
+      type: Directory
+    name: cyrus-slave-volume-log
 status: {}
 

@@ -3,8 +3,10 @@ MAINTAINER kusari-k
 
 ARG SSL_DOMAIN 
 ARG USER_DOMAIN
+ARG password="cyruspassword"
+ENV Cpass $password
 
-EXPOSE 25 587 993 995 110 119 143 406 563 993 995 1109 2003 2004 2005 3905 4190
+EXPOSE 25 143 587 993
 
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
@@ -21,16 +23,14 @@ RUN postconf -e "inet_interfaces=all" && \
 	postconf -e "mydomain=localhost" && \
 	postconf -e "smtpd_tls_cert_file=/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" && \
 	postconf -e "smtpd_tls_key_file=/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \
-	postconf -e "home_mailbox = Maildir/" && \
 	postconf -e "smtpd_recipient_restrictions=permit_mynetworks permit_sasl_authenticated reject_unauth_destination" && \
 	postconf -e "smtpd_sasl_auth_enable=yes" && \
 	postconf -e "virtual_transport=lmtp:unix:/run/cyrus/socket/lmtp" && \
 	postconf -e "virtual_mailbox_domains=$USER_DOMAIN" && \
 	postconf -e "virtual_mailbox_maps=hash:/etc/postfix/vmailbox" && \
-	postconf -e "masquerade_domains =$USER_DOMAIN" && \
 	postconf -e "inet_protocols =ipv4" && \
 	postconf -e "smtpd_banner = ESMTP" && \
-	postconf -e "smtpd_tls_loglevel = 2" 
+	postconf -e "smtpd_tls_loglevel = 1"
 
 #/etc/imapd.conf
 RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
@@ -56,11 +56,16 @@ RUN smtps_num=$(grep -n "^#smtps" /etc/postfix/master.cf|sed s/:.*//) && \
 	-e "1,$smtps_num  s/^#\(.*smtpd_recipient_restrictions.*\)/\1/" \
 	-e "1,$smtps_num  s/^#\(.*smtpd_relay_restrictions.*\)/\1/" /etc/postfix/master.cf
 
+#/etc/cyrus.conf
+RUN sed -i -e "/^#.*idled/ s/#//" /etc/cyrus.conf
+
 #/etc/sasl2/smtpd.conf
 RUN sed -i -e "s/saslauthd/auxprop/" \
 	-e "2i auxprop_plugin: sasldb" /etc/sasl2/smtpd.conf 
 
 #user setting
+RUN echo $password|saslpasswd2 -c -p cyrus
+
 RUN grep "^user:" /usr/local/bin/setting.log | \
 	sed "s/^user://" | \
 	awk -F '[:@]' '{print $1,$2,$3}' | \
