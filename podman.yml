@@ -23,6 +23,9 @@ spec:
     - containerPort: 25
       hostPort: 1025
       protocol: TCP
+    - containerPort: 143
+      hostPort: 10143
+      protocol: TCP
     - containerPort: 465
       hostPort: 10465
       protocol: TCP

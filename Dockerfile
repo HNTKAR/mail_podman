@@ -22,14 +22,13 @@ RUN postconf -e "inet_interfaces=all" && \
 	postconf -e "smtpd_tls_cert_file=/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" && \
 	postconf -e "smtpd_tls_key_file=/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \
 	postconf -e "home_mailbox = Maildir/" && \
-	postconf -e "smtpd_recipient_restrictions=permit_mynetworks permit_sasl_authenticated reject" && \
+	postconf -e "smtpd_recipient_restrictions=permit_mynetworks permit_sasl_authenticated reject_unauth_destination" && \
 	postconf -e "smtpd_sasl_auth_enable=yes" && \
 	postconf -e "virtual_transport=lmtp:unix:/run/cyrus/socket/lmtp" && \
 	postconf -e "virtual_mailbox_domains=$USER_DOMAIN" && \
 	postconf -e "virtual_mailbox_maps=hash:/etc/postfix/vmailbox" && \
 	postconf -e "masquerade_domains =$USER_DOMAIN" && \
 	postconf -e "inet_protocols =ipv4" && \
-	postconf -e "local_recipient_maps=proxy:unix:passwd.byname $alias_maps hash:/etc/postfix/vmailbox" && \
 	postconf -e "smtpd_banner = ESMTP" && \
 	postconf -e "smtpd_tls_loglevel = 2" 
 
@@ -40,19 +39,11 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
 	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
-	-e "\$a syslog_facility:LOCAL6" \
+	-e "\$a syslog_facility: LOCAL6" \
 	-e "\$a autocreate_post: yes" \
 	-e "\$a autocreate_quota_messages: 0" \
 	-e "\$a autocreate_quota: 0" \
 	-e "\$a defaultdomain: localhost" /etc/imapd.conf
-
-#	-e "\$a smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache" \
-#	-e "\$a smtpd_tls_session_cache_timeout = 3600s" \
-#	-e "\$a smtpd_tls_received_header = yes" \
-#	-e "\$a smtpd_tls_loglevel = 1" \
-#	-e "\$a relay_domains = $alias_DOMAIN" \
-#	-e "\$a unknown_relay_recipient_reject_code = 550" \
-#	-e "\$a smtp_sasl_password_maps = hash:/etc/postfix/sasl_password" \
 
 #/etc/postfix/master.cf
 RUN smtps_num=$(grep -n "^#smtps" /etc/postfix/master.cf|sed s/:.*//) && \
@@ -64,15 +55,10 @@ RUN smtps_num=$(grep -n "^#smtps" /etc/postfix/master.cf|sed s/:.*//) && \
 	-e "1,$smtps_num  s/^#\(.*smtpd_reject_unlisted_recipient.*\)/\1/" \
 	-e "1,$smtps_num  s/^#\(.*smtpd_recipient_restrictions.*\)/\1/" \
 	-e "1,$smtps_num  s/^#\(.*smtpd_relay_restrictions.*\)/\1/" /etc/postfix/master.cf
-#	-e "/smtpd_tls_wrappermode/ s/^#//" \
-#	-e "/smtpd_sasl_auth_enable/ s/^#//" \
-#	-e "$(grep -m1 -n smtpd_sasl_auth_enable /etc/postfix/master.cf|sed s/:.*//) s/^/#/" \
-#	-e "/smtpd_relay_restrictions/ s/^#//" \
-#	-e "$(grep -m1 -n smtpd_relay_restrictions /etc/postfix/master.cf|sed s/:.*//) s/^/#/" /etc/postfix/master.cf
 
 #/etc/sasl2/smtpd.conf
 RUN sed -i -e "s/saslauthd/auxprop/" \
-	-e "2i auxprop_plugin: sasldb2" /etc/sasl2/smtpd.conf 
+	-e "2i auxprop_plugin: sasldb" /etc/sasl2/smtpd.conf 
 
 #user setting
 RUN grep "^user:" /usr/local/bin/setting.log | \
