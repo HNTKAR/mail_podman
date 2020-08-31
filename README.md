@@ -6,31 +6,30 @@
 ###mail###
 ssl_domain:example.com
 hostname:example.com,example.org,example.net
-user:email1:password1
-user:email2:password2
-user:email3:password3
+user1:email1:password1
+user2:email2:password2
+user3:email3:password3
 ```
 
 ## _up container_
 
 ```
 ./script.sh
-sudo firewall-cmd --add-forward-port=port=465:proto=tcp:toport=10465
+sudo firewall-cmd --add-forward-port=port=25:proto=tcp:toport=1025
+sudo firewall-cmd --add-forward-port=port=143:proto=tcp:toport=10143
 sudo firewall-cmd --add-forward-port=port=587:proto=tcp:toport=10587
 sudo firewall-cmd --add-forward-port=port=993:proto=tcp:toport=10993
-sudo firewall-cmd --add-forward-port=port=995:proto=tcp:toport=10995
 podman play kube podman.yml
 sudo firewall-cmd --reload
-#podman run -itd --pod mail_pod -v /home/podman:/podman --name mail mail
-#podman exec -it mail bash
+#podman run -itd --pod mail_pod -v /home/podman:/podman --name postfix postfix
+#podman exec -it postfix bash
 ```
 
 #### _SE-Linux setting_
 
 ```
-sudo mkdir -p -m 777 /home/podman/certbot_pod/letsencrypt /home/podman/certbot_pod/log
+sudo mkdir -p -m 777 /home/podman/mail_pod/postfix /home/podman/mail_pod/postfix_log /home/podman/mail_pod/cyrus_master /home/podman/mail_pod/cyrus_master_log /home/podman/mail_pod/cyrus_slave /home/podman/mail_pod/cyrus_slave_log
 sudo semanage fcontext -a -t container_file_t "/home/podman(/.*)?"
-sudo restorecon -R /home
+sudo restorecon -R /home/podman
 ```
-
 
