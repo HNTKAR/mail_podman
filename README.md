@@ -28,7 +28,7 @@ sudo firewall-cmd --reload
 #### _SE-Linux setting_
 
 ```
-sudo mkdir -p -m 777 /home/podman/mail_pod/postfix /home/podman/mail_pod/postfix_log /home/podman/mail_pod/cyrus_master /home/podman/mail_pod/cyrus_master_log /home/podman/mail_pod/cyrus_slave /home/podman/mail_pod/cyrus_slave_log
+sudo mkdir -p -m 777 /home/podman/mail_pod/postfix /home/podman/mail_pod/postfix_log /home/podman/mail_pod/cyrus /home/podman/mail_pod/cyrus_log /home/podman/mail_pod/cyrus_replica /home/podman/mail_pod/cyrus_replica_log
 sudo semanage fcontext -a -t container_file_t "/home/podman(/.*)?"
 sudo restorecon -R /home/podman
 ```

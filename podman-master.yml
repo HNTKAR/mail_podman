@@ -1,0 +1,115 @@
+# Generation of Kubernetes YAML is still under development!
+#
+# Save the output of this file and use kubectl create -f to import
+# it into Kubernetes.
+#
+# Created with podman-1.6.4
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: mail_pod
+  name: mail_pod
+spec:
+  containers:
+  - env:
+    - name: HOSTNAME
+      value: mail_pod
+    - name: container
+      value: podman
+    image: localhost/postfix-master:latest
+    name: postfix-master
+    ports:
+    - containerPort: 25
+      hostPort: 1025
+      protocol: TCP
+    - containerPort: 587
+      hostPort: 10587
+      protocol: TCP
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities: {}
+      privileged: false
+      readOnlyRootFilesystem: false
+    tty: true
+    volumeMounts:
+    - mountPath: /podman/postfix
+      name: postfix-volume
+    - mountPath: /podman/postfix_log
+      name: postfix-volume-log
+    workingDir: /
+  - env:
+    - name: HOSTNAME
+      value: mail_pod
+    - name: container
+      value: podman
+    image: localhost/cyrus-master:latest
+    name: cyrus-master
+    ports:
+    - containerPort: 143
+      hostPort: 10143
+      protocol: TCP
+    - containerPort: 993
+      hostPort: 10993
+      protocol: TCP
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities: {}
+      privileged: false
+      readOnlyRootFilesystem: false
+    tty: true
+    volumeMounts:
+    - mountPath: /podman/cyrus
+      name: cyrus-volume
+    - mountPath: /podman/cyrus_log
+      name: cyrus-volume-log
+    workingDir: /
+  - env:
+    - name: HOSTNAME
+      value: mail_pod
+    - name: container
+      value: podman
+    image: localhost/cyrus-replica:latest
+    name: cyrus-replica
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities: {}
+      privileged: false
+      readOnlyRootFilesystem: false
+    tty: true
+    volumeMounts:
+    - mountPath: /podman/cyrus_replica
+      name: cyrus-replica-volume
+    - mountPath: /podman/cyrus_replica_log
+      name: cyrus-replica-volume-log
+    workingDir: /
+  volumes:
+  - hostPath:
+      path: /home/podman/mail_pod/postfix
+      type: Directory
+    name: postfix-volume
+  - hostPath:
+      path: /home/podman/mail_pod/postfix_log
+      type: Directory
+    name: postfix-volume-log
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus
+      type: Directory
+    name: cyrus-volume
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus_log
+      type: Directory
+    name: cyrus-volume-log
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus_replica
+      type: Directory
+    name: cyrus-replica-volume
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus_replica_log
+      type: Directory
+    name: cyrus-replica-volume-log
+status: {}
+
