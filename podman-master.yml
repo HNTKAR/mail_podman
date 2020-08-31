@@ -34,9 +34,9 @@ spec:
       readOnlyRootFilesystem: false
     tty: true
     volumeMounts:
-    - mountPath: /podman/postfix
+    - mountPath: /podman
       name: postfix-volume
-    - mountPath: /podman/postfix_log
+    - mountPath: /var/log
       name: postfix-volume-log
     workingDir: /
   - env:
@@ -61,9 +61,9 @@ spec:
       readOnlyRootFilesystem: false
     tty: true
     volumeMounts:
-    - mountPath: /podman/cyrus
+    - mountPath: /podman
       name: cyrus-volume
-    - mountPath: /podman/cyrus_log
+    - mountPath: /var/log
       name: cyrus-volume-log
     workingDir: /
   - env:
@@ -81,9 +81,9 @@ spec:
       readOnlyRootFilesystem: false
     tty: true
     volumeMounts:
-    - mountPath: /podman/cyrus_replica
+    - mountPath: /podman
       name: cyrus-replica-volume
-    - mountPath: /podman/cyrus_replica_log
+    - mountPath: /var/log
       name: cyrus-replica-volume-log
     workingDir: /
   volumes:

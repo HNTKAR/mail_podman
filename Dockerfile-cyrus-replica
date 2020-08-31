@@ -32,10 +32,6 @@ RUN sed -i -e "/^#.*idled/ s/#//" \
 	-e "/^#.*lmtp/ s/\"lmtp\"/\"localhost:lmtp\" proto=\"tcp\"/" \
 	-e "/^#.*lmtp/ s/#//" /etc/cyrus.conf
 
-#/etc/sasl2/smtpd.conf
-RUN sed -i -e "s/saslauthd/auxprop/" \
-	-e "2i auxprop_plugin: sasldb" /etc/sasl2/smtpd.conf 
-
 #user setting
 RUN echo $password|saslpasswd2 -c -p -u mail_pod cyrus
 

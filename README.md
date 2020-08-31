@@ -21,8 +21,13 @@ sudo firewall-cmd --add-forward-port=port=587:proto=tcp:toport=10587
 sudo firewall-cmd --add-forward-port=port=993:proto=tcp:toport=10993
 podman play kube podman.yml
 sudo firewall-cmd --reload
-#podman run -itd --pod mail_pod -v /home/podman/mail_pod/postfix:/podman/postfix -v /home/podman/mail_pod/postfix_log:/podman/postfix_log --name postfix postfix
-#podman exec -it postfix bash
+#podman pod create -p 1025:25 -p 10587:587 -p 10143:143 -p 10993:993 -n mail_pod
+#podman run -itd --pod mail_pod -v /home/podman/mail_pod/postfix:/podman -v /home/podman/mail_pod/postfix_log:/var/log --name postfix-master postfix-master
+#podman run -itd --pod mail_pod -v /home/podman/mail_pod/cyrus:/podman -v /home/podman/mail_pod/cyrus_log:/var/log --name cyrus-master cyrus-master
+#podman run -itd --pod mail_pod -v /home/podman/mail_pod/cyrus_replica:/podman -v /home/podman/mail_pod/cyrus_replica_log:/var/log --name cyrus-replica cyrus-replica
+#podman exec -it postfix-master bash
+#podman exec -it cyrus-master bash
+#podman exec -it cyrus-replica bash
 ```
 
 #### _SE-Linux setting_
