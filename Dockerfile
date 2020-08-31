@@ -64,7 +64,7 @@ RUN sed -i -e "s/saslauthd/auxprop/" \
 	-e "2i auxprop_plugin: sasldb" /etc/sasl2/smtpd.conf 
 
 #user setting
-RUN echo $password|saslpasswd2 -c -p cyrus
+RUN echo $password|saslpasswd2 -c -p -u mail_pod cyrus
 
 RUN grep "^user:" /usr/local/bin/setting.log | \
 	sed "s/^user://" | \
