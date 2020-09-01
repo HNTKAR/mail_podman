@@ -23,9 +23,8 @@ RUN postconf -e "inet_interfaces=all" && \
 	postconf -e "smtpd_tls_key_file=/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \
 	postconf -e "smtpd_recipient_restrictions=permit_mynetworks permit_sasl_authenticated reject_unauth_destination" && \
 	postconf -e "smtpd_sasl_auth_enable=yes" && \
-	postconf -e "virtual_transport=lmtp:inet:localhost" && \
-	postconf -e "virtual_mailbox_domains=$USER_DOMAIN" && \
-	postconf -e "virtual_mailbox_maps=hash:/etc/postfix/vmailbox" && \
+	postconf -e "relay_domains = $USER_DOMAIN" && \
+	postconf -e "transport_maps = hash:/etc/postfix/transport" && \
 	postconf -e "inet_protocols =ipv4" && \
 	postconf -e "smtpd_banner = ESMTP" && \
 	postconf -e "smtpd_tls_loglevel = 1"
@@ -51,15 +50,15 @@ RUN grep "^user:" /usr/local/bin/setting.log | \
 	sed -ze "s/\n/ /g" | \ 
 	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -u $1 $0'
 
-RUN grep "^user:" /usr/local/bin/setting.log | \
-	sed "s/^user://" | \
-	awk -F '[:]' '{print $1,$1}' > /etc/postfix/vmailbox && \
-	postmap /etc/postfix/vmailbox
+RUN grep "^relay:" /usr/local/bin/setting.log | \
+	sed "s/^relay//" | \
+	awk -F '[:]' '{print $1" smtp:"$2}' > /etc/postfix/transport && \
+	postmap /etc/postfix/transport
 	
 #authority setting
 RUN chmod 777 /etc/sasldb2 && \
 	chmod -R 777 /etc/letsencrypt && \
-	chmod 644 /etc/postfix/vmailbox
+	chmod 644 /etc/postfix/transport
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \

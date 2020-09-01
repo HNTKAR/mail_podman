@@ -11,7 +11,7 @@ export SSL_DOMAIN=$(grep ssl_domain setting.log|sed "s/.*://")
 export USER_DOMAIN=$(grep hostname setting.log|sed "s/.*://")
 export password=$(cat /dev/urandom | base64 | fold -w 10|head -n 1)
 
-\cp -frp /home/podman/certbot_pod/letsencrypt .
+\cp -frp /home/podman/ssl_pod/letsencrypt .
 
 #build image
 read -p "do you want to up master container ? (y/n):" yn
