@@ -66,26 +66,6 @@ spec:
     - mountPath: /var/log
       name: cyrus-volume-log
     workingDir: /
-  - env:
-    - name: HOSTNAME
-      value: mail_pod
-    - name: container
-      value: podman
-    image: localhost/cyrus-replica:latest
-    name: cyrus-replica
-    resources: {}
-    securityContext:
-      allowPrivilegeEscalation: true
-      capabilities: {}
-      privileged: false
-      readOnlyRootFilesystem: false
-    tty: true
-    volumeMounts:
-    - mountPath: /podman
-      name: cyrus-replica-volume
-    - mountPath: /var/log
-      name: cyrus-replica-volume-log
-    workingDir: /
   volumes:
   - hostPath:
       path: /home/podman/mail_pod/postfix
@@ -103,13 +83,5 @@ spec:
       path: /home/podman/mail_pod/cyrus_log
       type: Directory
     name: cyrus-volume-log
-  - hostPath:
-      path: /home/podman/mail_pod/cyrus_replica
-      type: Directory
-    name: cyrus-replica-volume
-  - hostPath:
-      path: /home/podman/mail_pod/cyrus_replica_log
-      type: Directory
-    name: cyrus-replica-volume-log
 status: {}
 

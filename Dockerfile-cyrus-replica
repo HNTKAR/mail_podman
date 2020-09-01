@@ -11,7 +11,7 @@ RUN dnf update -y && \
 	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
 	dnf clean all
 
-COPY setting.log run-cyrus-replica.sh /usr/local/bin/
+COPY setting.log run-cyrus.sh /usr/local/bin/
 COPY letsencrypt /etc/letsencrypt
 
 #/etc/imapd.conf
@@ -53,5 +53,5 @@ RUN sed -i -e "/imjournal/ s/^/#/" \
 	echo "local6.*        /var/log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
 	echo "auth.debug      /var/log/auth.log" >> /etc/rsyslog.d/cyrus.conf
 
-RUN  chmod 755 /usr/local/bin/run-cyrus-replica.sh
-ENTRYPOINT ["/usr/local/bin/run-cyrus-replica.sh"]
+RUN  chmod 755 /usr/local/bin/run-cyrus.sh
+ENTRYPOINT ["/usr/local/bin/run-cyrus.sh"]
