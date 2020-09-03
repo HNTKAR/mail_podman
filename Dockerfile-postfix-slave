@@ -17,7 +17,7 @@ COPY letsencrypt /etc/letsencrypt
 #/etc/postfix/main.cf
 RUN postconf -e "inet_interfaces=all" && \
 	postconf -e "mydestination=localhost" && \
-	postconf -e "myhostname=localhost" && \
+	postconf -e "myhostname=slave.localhost" && \
 	postconf -e "mydomain=localhost" && \
 	postconf -e "smtpd_tls_cert_file=/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" && \
 	postconf -e "smtpd_tls_key_file=/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \

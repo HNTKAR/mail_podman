@@ -6,9 +6,11 @@
 ###mail###
 ssl_domain:example.com
 hostname:example.com,example.org,example.net
-user1:email1:password1
-user2:email2:password2
-user3:email3:password3
+user:email1:password1
+user:email2:password2
+user:email3:password3
+relay:relay_domaiin1:relay_destination1
+relay:relay_domaiin2:relay_destination2
 ```
 
 ## _up container_
