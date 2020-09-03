@@ -31,6 +31,7 @@ podman play kube podman-master.yml
 #podman exec -it cyrus-master bash
 #podman pod rm -f mail_pod
 #sudo firewall-cmd --reload
+#podman generate systemd -n --restart-policy=always mail_pod -f
 ```
 
 slave
@@ -49,6 +50,21 @@ podman play kube podman-slave-replica.yml
 #podman exec -it cyrus-replica bash
 #podman pod rm -f mail_pod
 #sudo firewall-cmd --reload
+#podman generate systemd -n --restart-policy=always mail_pod -f
+```
+systemctl 
+
+```
+mkdir -p $HOME/.config/systemd/user/ && \
+sudo loginctl enable-linger $(whoami) && \
+podman generate systemd -n --restart-policy=always mail_pod -f >tmp.service && \
+cat tmp.service | \
+xargs -I {} sed -i -e "s/multi-user/default/" {} && \
+cat tmp.service | \
+xargs -I {} cp {} -frp $HOME/.config/systemd/user && \
+cat tmp.service | \
+xargs -I {} systemctl --user enable {} && \
+rm *.service
 ```
 
 #### _SE-Linux setting_

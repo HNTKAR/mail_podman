@@ -20,7 +20,6 @@ if [ ${yn,,} = "y" ]; then
 	podman rmi -f cyrus-master
 	podman build -f Dockerfile-postfix-master -t postfix-master:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN
 	podman build -f Dockerfile-cyrus-master -t cyrus-master:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN --build-arg password=$password
-	podman generate systemd -n --restart-policy=always mail_pod -f
 fi
 
 read -p "do you want to up replica and slave container ? (y/n):" yn
@@ -29,8 +28,6 @@ if [ ${yn,,} = "y" ]; then
 	podman rmi -f cyrus-replica
 	podman build -f Dockerfile-postfix-slave -t postfix-slave:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN
 	podman build -f Dockerfile-cyrus-replica -t cyrus-replica:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN --build-arg password=$password
-	podman generate systemd -n --restart-policy=always mail_pod -f
 fi
 
-rm *.service
 rm *.log
