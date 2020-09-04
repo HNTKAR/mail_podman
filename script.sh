@@ -7,8 +7,10 @@ cd $(dirname $0)
 sed -z -e "s/.*##\+mail#*//g" \
 	-e "s/##.\+//g" setting.txt >setting.log
 
-export SSL_DOMAIN=$(grep ssl_domain setting.log|sed "s/.*://")
-export USER_DOMAIN=$(grep hostname setting.log|sed "s/.*://")
+export SSL_DOMAIN=$(grep ^ssl_domain setting.log|sed "s/.*://")
+export USER_DOMAIN=$(grep ^hostname setting.log|sed "s/.*://")
+export replSSL_DOMAIN=$(grep ^replssl_domain setting.log|sed "s/.*://")
+export replpassword=$(grep ^replpassword setting.log|sed "s/.*://")
 export password=$(cat /dev/urandom | base64 | fold -w 10|head -n 1)
 
 \cp -frp /home/podman/ssl_pod/letsencrypt .
@@ -19,7 +21,8 @@ if [ ${yn,,} = "y" ]; then
 	podman rmi -f postfix-master
 	podman rmi -f cyrus-master
 	podman build -f Dockerfile-postfix-master -t postfix-master:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN
-	podman build -f Dockerfile-cyrus-master -t cyrus-master:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN --build-arg password=$password
+	podman build -f Dockerfile-cyrus-master -t cyrus-master:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN --build-arg password=$password --build-arg replSSL_DOMAIN=$replSSL_DOMAIN --build-arg replpassword=$replpassword
+
 fi
 
 read -p "do you want to up replica and slave container ? (y/n):" yn

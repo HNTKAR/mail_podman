@@ -1,9 +1,12 @@
 FROM centos:8
 MAINTAINER kusari-k
 
+#repl=replication
 ARG SSL_DOMAIN 
+ARG replSSL_DOMAIN
 ARG USER_DOMAIN
 ARG password="cyruspassword"
+ARG replpassword="cyruspassword"
 ENV Cpass $password
 
 EXPOSE 587 993
@@ -23,14 +26,24 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
 	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
+	-e "\$a servername: $SSL_DOMAIN" \
+	-e "\$a serverinfo= off" \
 	-e "\$a syslog_facility: LOCAL6" \
 	-e "\$a autocreate_post: yes" \
 	-e "\$a autocreate_quota_messages: 0" \
 	-e "\$a autocreate_quota: 0" \
-	-e "\$a defaultdomain: localhost" /etc/imapd.conf
+	-e "\$a defaultdomain: localhost" \
+	-e "\$a sync_authname: cyrus" \
+	-e "\$a sync_password: $replpassword" \
+	-e "\$a sync_compress: true" \
+	-e "\$a sync_log: true" \
+	-e "\$a sync_repeat_interval: 60" \
+	-e "\$a sync_host: $replSSL_DOMAIN" \
+	-e "\$a shutdown_file: /run/cyrus/sync/shutdown" /etc/imapd.conf
 
 #/etc/cyrus.conf
 RUN sed -i -e "/^#.*idled/ s/#//" \
+	-e "/recover/ s/\$/\nsync         cmd=\"sync_client -r\"/" \
 	-e "/^#.*lmtp/ s/lmtpd/lmtpd -a/" \
 	-e "/^#.*lmtp/ s/\"lmtp\"/\"localhost:lmtp\" proto=\"tcp\"/" \
 	-e "/^#.*lmtp/ s/#//" /etc/cyrus.conf

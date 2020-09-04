@@ -21,6 +21,8 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
 	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
+	-e "\$a servername: $SSL_DOMAIN" \
+	-e "\$a serverinfo= off" \
 	-e "\$a syslog_facility: LOCAL6" \
 	-e "\$a autocreate_post: yes" \
 	-e "\$a autocreate_quota_messages: 0" \
