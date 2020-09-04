@@ -33,7 +33,7 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "\$a autocreate_quota_messages: 0" \
 	-e "\$a autocreate_quota: 0" \
 	-e "\$a defaultdomain: localhost" \
-	-e "\$a sync_authname: cyrus" \
+	-e "\$a sync_authname: cyrus@mail_pod" \
 	-e "\$a sync_password: $replpassword" \
 	-e "\$a sync_compress: true" \
 	-e "\$a sync_log: true" \
@@ -43,7 +43,7 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 
 #/etc/cyrus.conf
 RUN sed -i -e "/^#.*idled/ s/#//" \
-	-e "/recover/ s/\$/\nsync         cmd=\"sync_client -r\"/" \
+	-e "/recover/ s/\$/\nsync         cmd=\"sync_client -A\"/" \
 	-e "/^#.*lmtp/ s/lmtpd/lmtpd -a/" \
 	-e "/^#.*lmtp/ s/\"lmtp\"/\"localhost:lmtp\" proto=\"tcp\"/" \
 	-e "/^#.*lmtp/ s/#//" /etc/cyrus.conf

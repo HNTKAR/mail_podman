@@ -6,6 +6,8 @@ ARG USER_DOMAIN
 ARG password="cyruspassword"
 ENV Cpass $password
 
+RUN echo $password
+
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
 	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
