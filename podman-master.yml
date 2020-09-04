@@ -17,7 +17,7 @@ spec:
       value: mail_pod
     - name: container
       value: podman
-    image: localhost/postfix-master:latest
+    image: localhost/postfix-master
     name: postfix-master
     ports:
     - containerPort: 25
@@ -44,7 +44,7 @@ spec:
       value: mail_pod
     - name: container
       value: podman
-    image: localhost/cyrus-master:latest
+    image: localhost/cyrus-master
     name: cyrus-master
     ports:
     - containerPort: 143

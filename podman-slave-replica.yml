@@ -17,7 +17,7 @@ spec:
       value: mail_pod
     - name: container
       value: podman
-    image: localhost/postfix-slave:latest
+    image: localhost/postfix-slave
     name: postfix-slave
     ports:
     - containerPort: 25
@@ -44,7 +44,7 @@ spec:
       value: mail_pod
     - name: container
       value: podman
-    image: localhost/cyrus-replica:latest
+    image: localhost/cyrus-replica
     name: cyrus-replica
     ports:
     - containerPort: 143
