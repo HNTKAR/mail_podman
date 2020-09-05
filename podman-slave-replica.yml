@@ -61,8 +61,10 @@ spec:
       readOnlyRootFilesystem: false
     tty: true
     volumeMounts:
-    - mountPath: /podman
-      name: cyrus-volume
+    - mountPath: /var/spool/imap
+      name: cyrus-volume-spool
+    - mountPath: /var/lib/imap
+      name: cyrus-volume-db
     - mountPath: /var/log
       name: cyrus-volume-log
     workingDir: /
@@ -76,9 +78,13 @@ spec:
       type: Directory
     name: postfix-volume-log
   - hostPath:
-      path: /home/podman/mail_pod/cyrus
+      path: /home/podman/mail_pod/cyrus_spool
       type: Directory
-    name: cyrus-volume
+    name: cyrus-volume-spool
+  - hostPath:
+      path: /home/podman/mail_pod/cyrus_db
+      type: Directory
+    name: cyrus-volume-db
   - hostPath:
       path: /home/podman/mail_pod/cyrus_log
       type: Directory

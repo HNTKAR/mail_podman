@@ -20,7 +20,7 @@ replpassword:replication_server's_cyrus_password
 master
 
 ```
-sudo mkdir -p -m 777 /home/podman/mail_pod/postfix /home/podman/mail_pod/postfix_log /home/podman/mail_pod/cyrus /home/podman/mail_pod/cyrus_log 
+sudo mkdir -p -m 777 /home/podman/mail_pod/postfix /home/podman/mail_pod/postfix_log /home/podman/mail_pod/cyrus_spool /home/podman/mail_pod/cyrus_db /home/podman/mail_pod/cyrus_log
 ./script.sh
 sudo firewall-cmd --add-forward-port=port=25:proto=tcp:toport=1025
 sudo firewall-cmd --add-forward-port=port=143:proto=tcp:toport=10143
@@ -36,7 +36,7 @@ podman play kube podman-master.yml
 slave
 
 ```
-sudo mkdir -p -m 777 /home/podman/mail_pod/postfix /home/podman/mail_pod/postfix_log /home/podman/mail_pod/cyrus /home/podman/mail_pod/cyrus_log 
+sudo mkdir -p -m 777 /home/podman/mail_pod/postfix /home/podman/mail_pod/postfix_log /home/podman/mail_pod/cyrus_spool /home/podman/mail_pod/cyrus_db /home/podman/mail_pod/cyrus_log
 ./script.sh
 sudo firewall-cmd --add-forward-port=port=25:proto=tcp:toport=1025
 sudo firewall-cmd --add-forward-port=port=143:proto=tcp:toport=10143
@@ -53,8 +53,8 @@ master-systemctl
 
 ```
 podman pod create -p 1025:25 -p 10587:587 -p 10143:143 -p 10993:993 -n mail_pod
-podman run -itd --pod mail_pod -v /home/podman/mail_pod/postfix:/podman -v /home/podman/mail_pod/postfix_log:/var/log --name postfix-master postfix-master
-podman run -itd --pod mail_pod -v /home/podman/mail_pod/cyrus:/podman -v /home/podman/mail_pod/cyrus_log:/var/log --name cyrus-master cyrus-master
+podman run -td --pod mail_pod -v /home/podman/mail_pod/postfix:/podman -v /home/podman/mail_pod/postfix_log:/var/log --name postfix-master postfix-master
+podman run -td --pod mail_pod -v /home/podman/mail_pod/cyrus_spool:/var/spool/imap -v /home/podman/mail_pod/cyrus_db:/var/lib/imap -v /home/podman/mail_pod/cyrus_log:/var/log --name cyrus-master cyrus-master
 mkdir -p $HOME/.config/systemd/user/ && \
 sudo loginctl enable-linger $(whoami) && \
 podman generate systemd --new -n --restart-policy=always mail_pod -f >tmp.service && \
@@ -68,8 +68,8 @@ slave-systemctl
 
 ```
 podman pod create -p 1025:25 -p 10587:587 -p 10143:143 -p 10993:993 -n mail_pod
-podman run -itd --pod mail_pod -v /home/podman/mail_pod/postfix:/podman -v /home/podman/mail_pod/postfix_log:/var/log --name postfix-slave postfix-slave
-podman run -itd --pod mail_pod -v /home/podman/mail_pod/cyrus:/podman -v /home/podman/mail_pod/cyrus_log:/var/log --name cyrus-replica cyrus-replica
+podman run -td --pod mail_pod -v /home/podman/mail_pod/postfix:/podman -v /home/podman/mail_pod/postfix_log:/var/log --name postfix-slave postfix-slave
+podman run -td --pod mail_pod -v /home/podman/mail_pod/cyrus_spool:/var/spool/imap -v /home/podman/mail_pod/cyrus_db:/var/lib/imap -v /home/podman/mail_pod/cyrus_log:/var/log --name cyrus-replica cyrus-replica
 mkdir -p $HOME/.config/systemd/user/ && \
 sudo loginctl enable-linger $(whoami) && \
 podman generate systemd --new -n --restart-policy=always mail_pod -f >tmp.service && \
