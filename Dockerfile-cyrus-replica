@@ -29,19 +29,8 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "\$a syslog_facility: LOCAL6" \
 	-e "\$a defaultdomain: localhost" /etc/imapd.conf
 
-#/etc/cyrus.conf
-RUN sed -i -e "/^#.*idled/ s/#//" \
-	-e "/^#.*lmtp/ s/\"lmtp\"/\"localhost:lmtp\" proto=\"tcp\"/" \
-	-e "/^#.*lmtp/ s/#//" /etc/cyrus.conf
-
 #user setting
 RUN echo $password|saslpasswd2 -c -p -u mail_pod cyrus
-
-RUN grep "^user:" /usr/local/bin/setting.log | \
-	sed "s/^user://" | \
-	awk -F '[:@]' '{print $1,$2,$3}' | \
-	sed -ze "s/\n/ /g" | \ 
-	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -u $1 $0'
 
 #authority setting
 RUN mkdir -p -m 750 /var/lib/cyrus /var/spool/cyrus  && \

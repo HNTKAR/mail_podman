@@ -4,8 +4,6 @@ MAINTAINER kusari-k
 ARG SSL_DOMAIN 
 ARG USER_DOMAIN
 
-EXPOSE 25 587
-
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
 	dnf install -y rsyslog postfix cyrus-sasl cyrus-sasl-plain && \

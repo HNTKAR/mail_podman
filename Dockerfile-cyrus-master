@@ -9,8 +9,6 @@ ARG password="cyruspassword"
 ARG replpassword="cyruspassword"
 ENV Cpass $password
 
-EXPOSE 587 993
-
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
 	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
