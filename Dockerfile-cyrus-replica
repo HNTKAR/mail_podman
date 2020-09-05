@@ -19,6 +19,7 @@ COPY letsencrypt /etc/letsencrypt
 #/etc/imapd.conf
 RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/virtdomains/ s/:.*/: userid/" \
+	-e "/^admin/ s/:.*/: cyrus@mail_pod/" \
 	-e "/tls_server_cert/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/fullchain.pem/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
@@ -26,9 +27,6 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "\$a servername: $SSL_DOMAIN" \
 	-e "\$a serverinfo: off" \
 	-e "\$a syslog_facility: LOCAL6" \
-	-e "\$a autocreate_post: yes" \
-	-e "\$a autocreate_quota_messages: 0" \
-	-e "\$a autocreate_quota: 0" \
 	-e "\$a defaultdomain: localhost" /etc/imapd.conf
 
 #/etc/cyrus.conf
