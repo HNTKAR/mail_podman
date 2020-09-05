@@ -52,6 +52,8 @@ podman play kube podman-slave-replica.yml
 master-systemctl 
 
 ```
+systemctl --user disable pod-mail_pod
+podman pod rm -f mail_pod
 podman pod create -p 1025:25 -p 10587:587 -p 10143:143 -p 10993:993 -n mail_pod
 podman run -td --pod mail_pod -v /home/podman/mail_pod/postfix:/podman -v /home/podman/mail_pod/postfix_log:/var/log --name postfix-master postfix-master
 podman run -td --pod mail_pod -v /home/podman/mail_pod/cyrus_spool:/var/spool/imap -v /home/podman/mail_pod/cyrus_db:/var/lib/imap -v /home/podman/mail_pod/cyrus_log:/var/log --name cyrus-master cyrus-master
@@ -62,11 +64,15 @@ cat tmp.service | \
 xargs -I {} cp {} -frp $HOME/.config/systemd/user && \
 cat tmp.service | \
 xargs -I {} systemctl --user enable {}
+podman pod rm -f mail_pod
+systemctl --user restart pod-mail_pod
 ```
 
 slave-systemctl
 
 ```
+systemctl --user disable pod-mail_pod
+podman pod rm -f mail_pod
 podman pod create -p 1025:25 -p 10587:587 -p 10143:143 -p 10993:993 -n mail_pod
 podman run -td --pod mail_pod -v /home/podman/mail_pod/postfix:/podman -v /home/podman/mail_pod/postfix_log:/var/log --name postfix-slave postfix-slave
 podman run -td --pod mail_pod -v /home/podman/mail_pod/cyrus_spool:/var/spool/imap -v /home/podman/mail_pod/cyrus_db:/var/lib/imap -v /home/podman/mail_pod/cyrus_log:/var/log --name cyrus-replica cyrus-replica
@@ -77,5 +83,7 @@ cat tmp.service | \
 xargs -I {} cp {} -frp $HOME/.config/systemd/user && \
 cat tmp.service | \
 xargs -I {} systemctl --user enable {}
+podman pod rm -f mail_pod
+systemctl --user restart pod-mail_pod
 ```
 

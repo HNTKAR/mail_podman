@@ -10,7 +10,7 @@ RUN echo $password
 
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
-	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
+	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain sudo && \
 	dnf clean all
 
 COPY setting.log run-cyrus.sh /usr/local/bin/
