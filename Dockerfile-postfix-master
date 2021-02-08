@@ -13,31 +13,31 @@ COPY setting.log run-postfix.sh /usr/local/bin/
 COPY letsencrypt /etc/letsencrypt
 
 #/etc/postfix/main.cf
-RUN postconf -e "inet_interfaces=all" && \
-	postconf -e "mydestination=localhost" && \
-	postconf -e "myhostname=master.localhost" && \
-	postconf -e "mydomain=localhost" && \
-	postconf -e "smtpd_tls_cert_file=/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" && \
-	postconf -e "smtpd_tls_key_file=/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \
-	postconf -e "smtpd_recipient_restrictions=permit_mynetworks permit_sasl_authenticated reject_unauth_destination" && \
-	postconf -e "smtpd_sasl_auth_enable=yes" && \
-	postconf -e "virtual_transport=lmtp:inet:localhost" && \
-	postconf -e "virtual_mailbox_domains=$USER_DOMAIN" && \
-	postconf -e "virtual_mailbox_maps=hash:/etc/postfix/vmailbox" && \
-	postconf -e "inet_protocols =ipv4" && \
+RUN postconf -e "inet_interfaces = all" && \
+	postconf -e "mydestination = localhost" && \
+	postconf -e "myhostname = master.localhost" && \
+	postconf -e "mydomain = localhost" && \
+	postconf -e "smtpd_tls_cert_file = /etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" && \
+	postconf -e "smtpd_tls_key_file = /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \
+	postconf -e "smtpd_recipient_restrictions = permit_mynetworks permit_sasl_authenticated reject_unauth_destination" && \
+	postconf -e "smtpd_sasl_auth_enable = yes" && \
+	postconf -e "virtual_transport = lmtp:inet:localhost" && \
+	postconf -e "virtual_mailbox_domains = $USER_DOMAIN" && \
+	postconf -e "virtual_mailbox_maps = hash:/etc/postfix/vmailbox" && \
+	postconf -e "inet_protocols = ipv4" && \
 	postconf -e "smtpd_banner = ESMTP" && \
-	postconf -e "smtpd_tls_loglevel = 1"
+	postconf -e "smtpd_tls_loglevel = 1" && \
+	postconf -e "maillog_file_prefixes = /log/postfix_log"
 
 #/etc/postfix/master.cf
-RUN smtps_num=$(grep -n "^#smtps" /etc/postfix/master.cf|sed s/:.*//) && \
-	sed -i -e "/^#submission/ s/^#//" \
-	-e "1,$smtps_num  s/^#\(.*syslog_name.*\)/\1/" \
-	-e "1,$smtps_num  s/^#\(.*smtpd_tls_security_level.*\)/\1/" \
-	-e "1,$smtps_num  s/^#\(.*smtpd_sasl_auth_enable.*\)/\1/" \
-	-e "1,$smtps_num  s/^#\(.*smtpd_tls_auth_only.*\)/\1/" \
-	-e "1,$smtps_num  s/^#\(.*smtpd_reject_unlisted_recipient.*\)/\1/" \
-	-e "1,$smtps_num  s/^#\(.*smtpd_recipient_restrictions.*\)/\1/" \
-	-e "1,$smtps_num  s/^#\(.*smtpd_relay_restrictions.*\)/\1/" /etc/postfix/master.cf
+RUN sed -i -e "/^#submission/ s/^#//" /etc/postfix/master.cf && \
+	postconf -P "submission/inet/syslog_name=postfix/submission" && \
+	postconf -P "submission/inet/smtpd_tls_security_level=encrypt" && \
+	postconf -P "submission/inet/smtpd_sasl_auth_enable=yes" && \
+	postconf -P "submission/inet/smtpd_tls_auth_only=yes" && \
+	postconf -P "submission/inet/smtpd_reject_unlisted_recipient=no" && \
+	postconf -P "submission/inet/smtpd_recipient_restrictions=" && \
+	postconf -P "submission/inet/smtpd_relay_restrictions=permit_sasl_authenticated,reject"
 
 #/etc/sasl2/smtpd.conf
 RUN sed -i -e "s/saslauthd/auxprop/" \
@@ -56,12 +56,13 @@ RUN grep "^user:" /usr/local/bin/setting.log | \
 	
 #authority setting
 RUN chmod 777 /etc/sasldb2 && \
-	chmod -R 777 /etc/letsencrypt && \
+	chmod -R 444 /etc/letsencrypt && \
 	chmod 644 /etc/postfix/vmailbox
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
-	-e "s/off/on/" /etc/rsyslog.conf
+	-e "s/off/on/" 
+	-e "s/var\/log/log\/log/g" /etc/rsyslog.conf
 
 RUN  chmod 755 /usr/local/bin/run-postfix.sh
 ENTRYPOINT ["/usr/local/bin/run-postfix.sh"]
