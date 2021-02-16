@@ -27,8 +27,8 @@ RUN postconf -e "inet_interfaces = all" && \
 	postconf -e "virtual_mailbox_maps = hash:/etc/postfix/vmailbox" && \
 	postconf -e "inet_protocols = ipv4" && \
 	postconf -e "smtpd_banner = ESMTP" && \
-	postconf -e "smtpd_tls_loglevel = 1" && \
-	postconf -e "maillog_file_prefixes = /log/postfix_log"
+	postconf -e "queue_directory = /spool" && \
+	postconf -e "smtpd_tls_loglevel = 1"
 
 #/etc/postfix/master.cf
 RUN sed -i -e "/^#submission/ s/^#//" /etc/postfix/master.cf && \
@@ -46,9 +46,10 @@ RUN sed -i -e "s/saslauthd/auxprop/" \
 	#-e "2i auxprop_plugin: sasldb" /eddtc/sasl2/smtpd.conf 
 
 #/etc/rsyslog.conf
+RUN mkdir -p -m 644 /spool /conf /log
 RUN sed -i -e "/imjournal/ s/^/#/" \
-	-e "s/off/on/" 
-	-e "s/var\/log/log\/log/g" /etc/rsyslog.conf
+	-e "s/off/on/" \
+	-e "s/var\/log/log/g" /etc/rsyslog.conf
 
 RUN  chmod 755 /usr/local/bin/run-postfix.sh
 ENTRYPOINT ["/usr/local/bin/run-postfix.sh"]

@@ -11,7 +11,7 @@ ENV Cpass $password
 
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
-	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain sudo && \
+	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
 	dnf clean all
 
 COPY setting.log run-cyrus.sh /usr/local/bin/
@@ -25,6 +25,9 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
 	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
+	-e "/configdirectory/ s/:.*/: \/data/" \
+	-e "/partition-default/ s/:.*/: \/spool/"
+	-e "\$a sasl_sasldb_path: /conf/sasldb2" \
 	-e "\$a servername: $SSL_DOMAIN" \
 	-e "\$a serverinfo: off" \
 	-e "\$a syslog_facility: LOCAL6" \
@@ -49,10 +52,10 @@ RUN sed -i -e "/^#.*idled/ s/#//" \
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
-	-e "s/off/on/" /etc/rsyslog.conf && \
-	-e "s/var\/log/log\/log/g" /etc/rsyslog.conf && \
-	echo "local6.*        /log/log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
-	echo "auth.debug      /log/log/auth.log" >> /etc/rsyslog.d/cyrus.conf 
+	-e "s/off/on/" \
+	-e "s/var\/log/log/g" /etc/rsyslog.conf && \
+	echo "local6.*        /log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
+	echo "auth.debug      /log/auth.log" >> /etc/rsyslog.d/cyrus.conf 
 
-RUN  chmod 755 /usr/local/bin/run-cyrus-master.sh
+RUN  chmod 755 /usr/local/bin/run-cyrus.sh
 ENTRYPOINT ["/usr/local/bin/run-cyrus.sh"]

@@ -27,7 +27,7 @@ rm /usr/local/bin/setting.log
 rsyslogd
 
 #start cyrus
-sudo -u cyrus /usr/libexec/cyrus-imapd/mkimap /conf/imapd.conf
-/usr/libexec/cyrus-imapd/cyrus-master -C /conf/imapd.conf -M /conf/cyrus.conf -d
+su cyrus -c "/usr/libexec/cyrus-imapd/mkimap /conf/imapd.conf"
+#/usr/libexec/cyrus-imapd/cyrus-master -C /conf/imapd.conf -M /conf/cyrus.conf -d
 
 tail -f /dev/null
