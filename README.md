@@ -9,8 +9,8 @@ hostname:example.com,example.org
 user:email1:password1
 user:email2:password2
 user:email3:password3
-relay:relay_domaiin1:relay_destination1
-relay:relay_domaiin2:relay_destination2
+relay:relay_domain1:relay_destination1
+relay:relay_domain2:relay_destination2
 replssl_domain:example.net
 replpassword:replication_server's_cyrus_password
 ```

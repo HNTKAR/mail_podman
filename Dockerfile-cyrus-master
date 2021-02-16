@@ -5,8 +5,8 @@ MAINTAINER kusari-k
 ARG SSL_DOMAIN 
 ARG replSSL_DOMAIN
 ARG USER_DOMAIN
-ARG password="cyruspassword"
-ARG replpassword="cyruspassword"
+ARG password="cyrus_password"
+ARG replpassword="cyrus_rep_password"
 ENV Cpass $password
 
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
@@ -16,6 +16,7 @@ RUN dnf update -y && \
 
 COPY setting.log run-cyrus.sh /usr/local/bin/
 COPY letsencrypt /etc/letsencrypt
+RUN chmod -R 444 /etc/letsencrypt
 
 #/etc/imapd.conf
 RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
@@ -46,26 +47,12 @@ RUN sed -i -e "/^#.*idled/ s/#//" \
 	-e "/^#.*lmtp/ s/\"lmtp\"/\"localhost:lmtp\" proto=\"tcp\"/" \
 	-e "/^#.*lmtp/ s/#//" /etc/cyrus.conf
 
-#user setting
-RUN echo $password|saslpasswd2 -c -p -u mail_pod cyrus
-
-RUN grep "^user:" /usr/local/bin/setting.log | \
-	sed "s/^user://" | \
-	awk -F '[:@]' '{print $1,$2,$3}' | \
-	sed -ze "s/\n/ /g" | \ 
-	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -u $1 $0'
-
-#authority setting
-RUN mkdir -p -m 750 /var/lib/cyrus /var/spool/cyrus  && \
-	chown -R cyrus:mail /var/lib/cyrus /var/spool/cyrus && \
-	chmod 777 /etc/sasldb2 && \
-	chmod -R 777 /etc/letsencrypt
-
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
 	-e "s/off/on/" /etc/rsyslog.conf && \
-	echo "local6.*        /var/log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
-	echo "auth.debug      /var/log/auth.log" >> /etc/rsyslog.d/cyrus.conf 
+	-e "s/var\/log/log\/log/g" /etc/rsyslog.conf && \
+	echo "local6.*        /log/log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
+	echo "auth.debug      /log/log/auth.log" >> /etc/rsyslog.d/cyrus.conf 
 
-RUN  chmod 755 /usr/local/bin/run-cyrus.sh
+RUN  chmod 755 /usr/local/bin/run-cyrus-master.sh
 ENTRYPOINT ["/usr/local/bin/run-cyrus.sh"]
