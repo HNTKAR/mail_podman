@@ -1,9 +1,10 @@
 #!/usr/bin/bash
-mkdir -p -m 644 /data /spool /conf /log /log/log
+mkdir -p -m 644 /data /conf /log 
+mkdir -p -m 750 /spool /data/socket
+mkdir -p -m 700 /data/db
 touch /conf/sasldb2
-chmod  750 /spool
-chmod 777 /conf/sasldb2
-chown -R cyrus:mail /spool
+chmod 660 /conf/sasldb2
+chown -R cyrus:mail /spool /data/socket  /data/db /conf/sasldb2
 
 if [ ! -e /conf/imapd.conf ];then
 	cp /etc/imapd.conf /conf/imapd.conf
@@ -28,6 +29,6 @@ rsyslogd
 
 #start cyrus
 su cyrus -c "/usr/libexec/cyrus-imapd/mkimap /conf/imapd.conf"
-#/usr/libexec/cyrus-imapd/cyrus-master -C /conf/imapd.conf -M /conf/cyrus.conf -d
+/usr/libexec/cyrus-imapd/cyrus-master -C /conf/imapd.conf -M /conf/cyrus.conf -d
 
 tail -f /dev/null

@@ -26,7 +26,7 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
 	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
 	-e "/configdirectory/ s/:.*/: \/data/" \
-	-e "/partition-default/ s/:.*/: \/spool/"
+	-e "/partition-default/ s/:.*/: \/spool/" \
 	-e "\$a sasl_sasldb_path: /conf/sasldb2" \
 	-e "\$a servername: $SSL_DOMAIN" \
 	-e "\$a serverinfo: off" \

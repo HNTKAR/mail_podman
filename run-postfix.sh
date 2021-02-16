@@ -22,7 +22,7 @@ grep "^user:" /usr/local/bin/setting.log | \
 sasldblistusers2 -f /conf/sasldb2 | \
 	sed -e "s/:.*//g"|xargs -I {} echo {} {} > /conf/vmailbox
 postmap /conf/vmailbox
-chmod 644 /etc/postfix/vmailbox
+chmod 644 /conf/vmailbox
 
 rm /usr/local/bin/setting.log
 
