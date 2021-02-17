@@ -16,13 +16,15 @@ fi
 
 echo $Cpass | \
 	saslpasswd2 -c -p -f /conf/sasldb2 -u mail_pod cyrus
-grep "^user:" /usr/local/bin/setting.log | \
-	sed "s/^user://" | \
-	awk -F '[:@]' '{print $1,$2,$3}' | \
-	sed -ze "s/\n/ /g" | \
-	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -f /conf/sasldb2 -u $1 $0'
+if [ -e /usr/local/bin/master ];then
+	grep "^user:" /usr/local/bin/setting.log | \
+		sed "s/^user://" | \
+		awk -F '[:@]' '{print $1,$2,$3}' | \
+		sed -ze "s/\n/ /g" | \
+		xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -f /conf/sasldb2 -u $1 $0'
+fi
 
-rm /usr/local/bin/setting.log
+rm -fr /usr/local/bin/setting.log /usr/local/bin/master /usr/local/bin/replica
 
 #start rsyslog
 rsyslogd

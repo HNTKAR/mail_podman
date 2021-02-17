@@ -1,9 +1,8 @@
 #!/usr/bin/bash
-
 mkdir -p -m 644 /spool /conf /log
 chown root:root /spool /conf /log
-touch /conf/sasldb2
-chmod 644 /conf/sasldb2
+touch /conf/sasldb2 /etc/postfix/transport
+chmod 644 /conf/sasldb2 /conf/transport /conf/vmailbox
 chown root:postfix /conf/sasldb2
 
 if [ ! -e /conf/main.cf ];then
@@ -19,12 +18,19 @@ grep "^user:" /usr/local/bin/setting.log | \
 	awk -F '[:@]' '{print $1,$2,$3}' | \
 	sed -ze "s/\n/ /g" | \
 	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -f /conf/sasldb2 -u $1 $0'
-sasldblistusers2 -f /conf/sasldb2 | \
-	sed -e "s/:.*//g"|xargs -I {} echo {} {} > /conf/vmailbox
-postmap /conf/vmailbox
-chmod 644 /conf/vmailbox
+if [ -e /usr/local/bin/master ];then
+	sasldblistusers2 -f /conf/sasldb2 | \
+		sed -e "s/:.*//g"|xargs -I {} echo {} {} > /conf/vmailbox
+	postmap /conf/vmailbox
+fi
+if [ -e /usr/local/bin/slave ];then
+	grep "^relay:" /usr/local/bin/setting.log | \
+		sed "s/^relay://" | \
+		awk -F '[:]' '{print $1" smtp:"$2}' > /conf/transport
+	postmap /conf/transport
+fi
 
-rm /usr/local/bin/setting.log
+rm -fr /usr/local/bin/setting.log /usr/local/bin/master /usr/local/bin/slave
 
 #start rsyslog
 rsyslogd

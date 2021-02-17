@@ -4,7 +4,6 @@ MAINTAINER kusari-k
 #repl=replication
 ARG SSL_DOMAIN 
 ARG replSSL_DOMAIN
-ARG USER_DOMAIN
 ARG password="cyrus_password"
 ARG replpassword="cyrus_rep_password"
 ENV Cpass $password
@@ -16,7 +15,8 @@ RUN dnf update -y && \
 
 COPY setting.log run-cyrus.sh /usr/local/bin/
 COPY letsencrypt /etc/letsencrypt
-RUN chmod -R 444 /etc/letsencrypt
+RUN chown cyrus:mail -R /etc/letsencrypt && \
+	touch /usr/local/bin/master
 
 #/etc/imapd.conf
 RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
@@ -31,14 +31,14 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "\$a servername: $SSL_DOMAIN" \
 	-e "\$a serverinfo: off" \
 	-e "\$a syslog_facility: LOCAL6" \
-	-e "\$a autocreate_post: yes" \
+	-e "\$a autocreate_post: on" \
 	-e "\$a autocreate_quota_messages: 0" \
 	-e "\$a autocreate_quota: 0" \
 	-e "\$a defaultdomain: $SSL_DOMAIN" \
 	-e "\$a sync_authname: cyrus@mail_pod" \
 	-e "\$a sync_password: $replpassword" \
-	-e "\$a sync_compress: true" \
-	-e "\$a sync_log: true" \
+	-e "\$a sync_compress: on" \
+	-e "\$a sync_log: on" \
 	-e "\$a sync_repeat_interval: 60" \
 	-e "\$a sync_host: $replSSL_DOMAIN" \
 	-e "\$a shutdown_file: /run/cyrus/sync/shutdown" /etc/imapd.conf

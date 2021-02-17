@@ -2,19 +2,19 @@ FROM centos:8
 MAINTAINER kusari-k
 
 ARG SSL_DOMAIN 
-ARG USER_DOMAIN
-ARG password="cyruspassword"
+ARG password="cyrus_password"
 ENV Cpass $password
 
 RUN echo $password
-
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
-	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain sudo && \
+	dnf install -y rsyslog cyrus-imapd cyrus-sasl cyrus-sasl-plain && \
 	dnf clean all
 
 COPY setting.log run-cyrus.sh /usr/local/bin/
 COPY letsencrypt /etc/letsencrypt
+RUN chown cyrus:mail -R /etc/letsencrypt && \
+	touch /usr/local/bin/replica
 
 #/etc/imapd.conf
 RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
@@ -24,25 +24,20 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "/tls_server_key/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/privkey.pem/" \
 	-e "/tls_client_ca_file/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\/chain.pem/" \
 	-e "/tls_client_ca_dir/ s/:.*/: \/etc\/letsencrypt\/live\/$SSL_DOMAIN\//" \
+	-e "/configdirectory/ s/:.*/: \/data/" \
+	-e "/partition-default/ s/:.*/: \/spool/" \
+	-e "\$a sasl_sasldb_path: /conf/sasldb2" \
 	-e "\$a servername: $SSL_DOMAIN" \
 	-e "\$a serverinfo: off" \
 	-e "\$a syslog_facility: LOCAL6" \
 	-e "\$a defaultdomain: $SSL_DOMAIN" /etc/imapd.conf
 
-#user setting
-RUN echo $password|saslpasswd2 -c -p -u mail_pod cyrus
-
-#authority setting
-RUN mkdir -p -m 750 /var/lib/cyrus /var/spool/cyrus  && \
-	chown -R cyrus:mail /var/lib/cyrus /var/spool/cyrus && \
-	chmod 777 /etc/sasldb2 && \
-	chmod -R 777 /etc/letsencrypt
-
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
-	-e "s/off/on/" /etc/rsyslog.conf && \
-	echo "local6.*        /var/log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
-	echo "auth.debug      /var/log/auth.log" >> /etc/rsyslog.d/cyrus.conf
+	-e "s/off/on/" \
+	-e "s/var\/log/log/g" /etc/rsyslog.conf && \
+	echo "local6.*        /log/imapd.log" >> /etc/rsyslog.d/cyrus.conf && \
+	echo "auth.debug      /log/auth.log" >> /etc/rsyslog.d/cyrus.conf
 
 RUN  chmod 755 /usr/local/bin/run-cyrus.sh
 ENTRYPOINT ["/usr/local/bin/run-cyrus.sh"]

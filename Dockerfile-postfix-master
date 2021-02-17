@@ -11,7 +11,7 @@ RUN dnf update -y && \
 
 COPY setting.log run-postfix.sh /usr/local/bin/
 COPY letsencrypt /etc/letsencrypt
-COPY letsencrypt /etc/letsencrypt
+RUN touch /usr/local/bin/master
 
 #/etc/postfix/main.cf
 RUN postconf -e "inet_interfaces = all" && \
@@ -46,7 +46,6 @@ RUN sed -i -e "s/saslauthd/auxprop/" \
 	#-e "2i auxprop_plugin: sasldb" /eddtc/sasl2/smtpd.conf 
 
 #/etc/rsyslog.conf
-RUN mkdir -p -m 644 /spool /conf /log
 RUN sed -i -e "/imjournal/ s/^/#/" \
 	-e "s/off/on/" \
 	-e "s/var\/log/log/g" /etc/rsyslog.conf

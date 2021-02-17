@@ -11,6 +11,7 @@ RUN dnf update -y && \
 
 COPY setting.log run-postfix.sh /usr/local/bin/
 COPY letsencrypt /etc/letsencrypt
+RUN touch /usr/local/bin/slave
 
 #/etc/postfix/main.cf
 RUN postconf -e "inet_interfaces=all" && \
@@ -22,9 +23,10 @@ RUN postconf -e "inet_interfaces=all" && \
 	postconf -e "smtpd_recipient_restrictions=permit_mynetworks permit_sasl_authenticated reject_unauth_destination" && \
 	postconf -e "smtpd_sasl_auth_enable = yes" && \
 	postconf -e "relay_domains = $USER_DOMAIN" && \
-	postconf -e "transport_maps = hash:/etc/postfix/transport" && \
+	postconf -e "transport_maps = hash:/conf/transport" && \
 	postconf -e "inet_protocols =ipv4" && \
 	postconf -e "smtpd_banner = ESMTP" && \
+	postconf -e "queue_directory = /spool" && \
 	postconf -e "smtpd_tls_loglevel = 1"
 
 #/etc/postfix/master.cf
@@ -39,27 +41,13 @@ RUN sed -i -e "/^#submission/ s/^#//" /etc/postfix/master.cf && \
 
 #/etc/sasl2/smtpd.conf
 RUN sed -i -e "s/saslauthd/auxprop/" \
-	-e "2i auxprop_plugin: sasldb" /etc/sasl2/smtpd.conf 
-
-RUN grep "^user:" /usr/local/bin/setting.log | \
-	sed "s/^user://" | \
-	awk -F '[:@]' '{print $1,$2,$3}' | \
-	sed -ze "s/\n/ /g" | \ 
-	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -u $1 $0'
-
-RUN grep "^relay:" /usr/local/bin/setting.log | \
-	sed "s/^relay://" | \
-	awk -F '[:]' '{print $1" smtp:"$2}' > /etc/postfix/transport && \
-	postmap /etc/postfix/transport
-	
-#authority setting
-RUN chmod 777 /etc/sasldb2 && \
-	chmod -R 777 /etc/letsencrypt && \
-	chmod 644 /etc/postfix/transport
+	-e "2i sasldb_path: /conf/sasldb2" /etc/sasl2/smtpd.conf 
+	#-e "2i auxprop_plugin: sasldb" /etc/sasl2/smtpd.conf 
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
-	-e "s/off/on/" /etc/rsyslog.conf
+	-e "s/off/on/" \
+	-e "s/var\/log/log/g" /etc/rsyslog.conf
 
 RUN  chmod 755 /usr/local/bin/run-postfix.sh
 ENTRYPOINT ["/usr/local/bin/run-postfix.sh"]
