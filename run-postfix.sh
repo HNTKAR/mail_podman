@@ -29,7 +29,7 @@ if [ -e /usr/local/bin/slave ];then
 		awk -F '[:]' '{print $1" smtp:"$2}' > /conf/transport
 	postmap /conf/transport
 fi
-postmap /conf/aliases
+postalias /conf/aliases
 
 rm -fr /usr/local/bin/setting.log /usr/local/bin/master /usr/local/bin/slave
 

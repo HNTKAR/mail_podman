@@ -2,7 +2,7 @@ FROM centos:8
 MAINTAINER kusari-k
 
 ARG SSL_DOMAIN 
-ARG USER_DOMAIN
+ARG MAIL_DOMAIN
 
 RUN sed -i -e "\$a fastestmirror=true" /etc/dnf/dnf.conf
 RUN dnf update -y && \
@@ -25,12 +25,12 @@ RUN postconf -e "inet_interfaces = all" && \
 	postconf -e "alias_database = hash:/conf/aliases" && \
 	postconf -e "alias_maps = hash:/conf/aliases" && \
 	postconf -e "virtual_transport = lmtp:inet:localhost" && \
-	postconf -e "virtual_mailbox_domains = $USER_DOMAIN" && \
+	postconf -e "virtual_mailbox_domains = $MAIL_DOMAIN" && \
 	postconf -e "virtual_mailbox_maps = hash:/conf/vmailbox" && \
 	postconf -e "inet_protocols = ipv4" && \
 	postconf -e "smtpd_banner = ESMTP" && \
 	postconf -e "queue_directory = /spool" && \
-	postconf -e "smtpd_tls_loglevel = 2"
+	postconf -e "smtpd_tls_loglevel = 1"
 
 #/etc/postfix/master.cf
 RUN sed -i -e "/^#submission/ s/^#//" /etc/postfix/master.cf && \
