@@ -30,7 +30,7 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "\$a servername: $SSL_DOMAIN" \
 	-e "\$a serverinfo: off" \
 	-e "\$a syslog_facility: LOCAL6" \
-	-e "\$a defaultdomain: $SSL_DOMAIN" /etc/imapd.conf
+	-e "\$a defaultdomain: localhost" /etc/imapd.conf
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \

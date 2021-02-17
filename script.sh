@@ -20,14 +20,14 @@ read -p "do you want to up master container ? (y/n):" yn
 if [ ${yn,,} = "y" ]; then
 	podman rmi -f postfix-master
 	podman rmi -f cyrus-master
-	podman build -f Dockerfile-cyrus-master -t cyrus-master:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN --build-arg password=$password --build-arg replSSL_DOMAIN=$replSSL_DOMAIN --build-arg replpassword=$replpassword
+	podman build -f Dockerfile-cyrus-master -t cyrus-master:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg password=$password --build-arg replSSL_DOMAIN=$replSSL_DOMAIN --build-arg replpassword=$replpassword
 	podman build -f Dockerfile-postfix-master -t postfix-master:latest --build-arg SSL_DOMAIN=$SSL_DOMAIN --build-arg USER_DOMAIN=$USER_DOMAIN
 
 fi
 
 read -p "do you want to up replica and slave container ? (y/n):" yn
 if [ ${yn,,} = "y" ]; then
-	export reolpassword=$(cat /dev/urandom | base64 | fold -w 10|head -n 1)
+	export replpassword=$(cat /dev/urandom | base64 | fold -w 10|head -n 1)
 	podman rmi -f postfix-slave
 	podman rmi -f cyrus-replica
 	podman build -f Dockerfile-cyrus-replica -t cyrus-replica:latest --build-arg SSL_DOMAIN=$replSSL_DOMAIN --build-arg password=$replpassword

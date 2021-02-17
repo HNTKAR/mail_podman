@@ -34,7 +34,7 @@ RUN sed -i -e "/sasl_pwcheck_method/ s/:.*/: auxprop/" \
 	-e "\$a autocreate_post: on" \
 	-e "\$a autocreate_quota_messages: 0" \
 	-e "\$a autocreate_quota: 0" \
-	-e "\$a defaultdomain: $SSL_DOMAIN" \
+	-e "\$a defaultdomain: localhost" \
 	-e "\$a sync_authname: cyrus@mail_pod" \
 	-e "\$a sync_password: $replpassword" \
 	-e "\$a sync_compress: on" \

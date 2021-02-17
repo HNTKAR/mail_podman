@@ -13,12 +13,12 @@ if [ ! -e /conf/master.cf ];then
 	cp /etc/postfix/master.cf /conf/master.cf
 fi
 
-grep "^user:" /usr/local/bin/setting.log | \
-	sed "s/^user://" | \
-	awk -F '[:@]' '{print $1,$2,$3}' | \
-	sed -ze "s/\n/ /g" | \
-	xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -f /conf/sasldb2 -u $1 $0'
 if [ -e /usr/local/bin/master ];then
+	grep "^user:" /usr/local/bin/setting.log | \
+		sed "s/^user://" | \
+		awk -F '[:@]' '{print $1,$2,$3}' | \
+		sed -ze "s/\n/ /g" | \
+		xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -f /conf/sasldb2 -u $1 $0'
 	sasldblistusers2 -f /conf/sasldb2 | \
 		sed -e "s/:.*//g"|xargs -I {} echo {} {} > /conf/vmailbox
 	postmap /conf/vmailbox
