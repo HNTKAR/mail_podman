@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 mkdir -p -m 644 /spool /conf /log
 chown root:root /spool /conf /log
-touch /conf/sasldb2 /etc/postfix/transport
-chmod 644 /conf/sasldb2 /conf/transport /conf/vmailbox
+touch /conf/sasldb2 /conf/transport /conf/aliases
+chmod 644 /conf/sasldb2 /conf/transport /conf/vmailbox /conf/aliases
 chown root:postfix /conf/sasldb2
 
 if [ ! -e /conf/main.cf ];then
@@ -29,6 +29,7 @@ if [ -e /usr/local/bin/slave ];then
 		awk -F '[:]' '{print $1" smtp:"$2}' > /conf/transport
 	postmap /conf/transport
 fi
+postmap /conf/aliases
 
 rm -fr /usr/local/bin/setting.log /usr/local/bin/master /usr/local/bin/slave
 

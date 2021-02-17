@@ -22,13 +22,15 @@ RUN postconf -e "inet_interfaces = all" && \
 	postconf -e "smtpd_tls_key_file = /etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \
 	postconf -e "smtpd_recipient_restrictions = permit_mynetworks permit_sasl_authenticated reject_unauth_destination" && \
 	postconf -e "smtpd_sasl_auth_enable = yes" && \
+	postconf -e "alias_database = hash:/conf/aliases" && \
+	postconf -e "alias_maps = hash:/conf/aliases" && \
 	postconf -e "virtual_transport = lmtp:inet:localhost" && \
 	postconf -e "virtual_mailbox_domains = $USER_DOMAIN" && \
 	postconf -e "virtual_mailbox_maps = hash:/conf/vmailbox" && \
 	postconf -e "inet_protocols = ipv4" && \
 	postconf -e "smtpd_banner = ESMTP" && \
 	postconf -e "queue_directory = /spool" && \
-	postconf -e "smtpd_tls_loglevel = 1"
+	postconf -e "smtpd_tls_loglevel = 2"
 
 #/etc/postfix/master.cf
 RUN sed -i -e "/^#submission/ s/^#//" /etc/postfix/master.cf && \
@@ -43,7 +45,6 @@ RUN sed -i -e "/^#submission/ s/^#//" /etc/postfix/master.cf && \
 #/etc/sasl2/smtpd.conf
 RUN sed -i -e "s/saslauthd/auxprop/" \
 	-e "2i sasldb_path: /conf/sasldb2" /etc/sasl2/smtpd.conf 
-	#-e "2i auxprop_plugin: sasldb" /eddtc/sasl2/smtpd.conf 
 
 #/etc/rsyslog.conf
 RUN sed -i -e "/imjournal/ s/^/#/" \
