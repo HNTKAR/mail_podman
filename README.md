@@ -17,14 +17,14 @@ replpassword:replication_server's_cyrus_password
 
 ## **コンテナの起動**
 ```shell
-sudo firewall-cmd --add-forward-port=port=25:proto=tcp:toport=1025 --permanent
+sudo firewall-cmd --add-forward-port=port=25:proto=tcp:toport=10025 --permanent
 sudo firewall-cmd --add-forward-port=port=143:proto=tcp:toport=10143 --permanent
 sudo firewall-cmd --add-forward-port=port=587:proto=tcp:toport=10587 --permanent
 sudo firewall-cmd --add-forward-port=port=993:proto=tcp:toport=10993 --permanent
 sudo firewall-cmd --reload
 sudo mkdir -p -m 777 /home/podman/mail_pod/mta_spool /home/podman/mail_pod/mta_conf /home/podman/mail_pod/mta_log /home/podman/mail_pod/imap_data /home/podman/mail_pod/imap_spool /home/podman/mail_pod/imap_conf /home/podman/mail_pod/imap_log 
 ./script.sh
-podman pod create --replace=true -p 1025:25 -p 10143:143 -p 10587:587 -p 10993:993 -n mail_pod --net slirp4netns:port_handler=slirp4netns
+podman pod create --replace=true -p 10025:25 -p 10143:143 -p 10587:587 -p 10993:993 -n mail_pod --net slirp4netns:port_handler=slirp4netns
 #master
 podman run --replace=true -td --pod mail_pod -v /home/podman/mail_pod/mta_spool:/spool -v /home/podman/mail_pod/mta_conf:/conf -v /home/podman/mail_pod/mta_log:/log --name postfix-master postfix-master
 podman run --replace=true -td --pod mail_pod -v /home/podman/mail_pod/imap_data:/data -v /home/podman/mail_pod/imap_spool:/spool -v /home/podman/mail_pod/imap_conf:/conf -v /home/podman/mail_pod/imap_log:/log --name cyrus-master cyrus-master
