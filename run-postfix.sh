@@ -1,8 +1,8 @@
 #!/usr/bin/bash
-mkdir -p -m 644 /spool /conf /log
-chown root:root /spool /conf /log
-touch /conf/sasldb2 /conf/transport /conf/aliases
-chmod 644 /conf/sasldb2 /conf/transport /conf/vmailbox /conf/aliases
+mkdir -pm 644 /{spool,conf,log}
+chown root:root /{spool,conf,log}
+touch /conf/{sasldb2,transport,aliases}
+chmod 644 /conf/{sasldb2,transport,vmailbox,aliases}
 chown root:postfix /conf/sasldb2
 
 if [ ! -e /conf/main.cf ];then
@@ -31,7 +31,7 @@ if [ -e /usr/local/bin/slave ];then
 fi
 postalias /conf/aliases
 
-rm -fr /usr/local/bin/setting.log /usr/local/bin/master /usr/local/bin/slave
+rm -fr /usr/local/bin/{setting.log,master,slave}
 
 #start rsyslog
 rsyslogd

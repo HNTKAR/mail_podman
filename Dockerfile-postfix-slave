@@ -25,7 +25,6 @@ RUN postconf \
 	"smtpd_sasl_auth_enable = yes" \
 	"alias_database = hash:/conf/aliases" \
 	"alias_maps = hash:/conf/aliases" \
-	"virtual_transport = lmtp:inet:localhost" \
 	"relay_domains = $MAIL_DOMAIN" \
 	"transport_maps = hash:/conf/transport" \
 	"inet_protocols =ipv4" \

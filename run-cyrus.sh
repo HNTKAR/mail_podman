@@ -1,10 +1,10 @@
 #!/usr/bin/bash
-mkdir -p -m 644 /data /conf /log 
-mkdir -p -m 750 /spool /data/socket
-mkdir -p -m 700 /data/db
+mkdir -pm 644 /{data,conf,log}
+mkdir -pm 750 /spool /data/socket
+mkdir -pm 700 /data/{backup,db,log,md5,meta,msg,proc,ptclient,quota,rpm,sieve,sync,user}
 touch /conf/sasldb2
 chmod 660 /conf/sasldb2
-chown -R cyrus:mail /spool /data/socket  /data/db /conf/sasldb2
+chown -R cyrus:mail /spool /data/{backup,db,log,md5,meta,msg,proc,ptclient,quota,rpm,sieve,socket,sync,user} /conf/sasldb2
 
 if [ ! -e /conf/imapd.conf ];then
 	cp /etc/imapd.conf /conf/imapd.conf
@@ -24,7 +24,7 @@ if [ -e /usr/local/bin/master ];then
 		xargs -n 3 -d " " bash -c 'echo $2|saslpasswd2 -c -p -f /conf/sasldb2 -u $1 $0'
 fi
 
-rm -fr /usr/local/bin/setting.log /usr/local/bin/master /usr/local/bin/replica
+rm -fr /usr/local/bin/{setting.log,master,replica}
 
 #start rsyslog
 rsyslogd
