@@ -14,33 +14,36 @@ COPY letsencrypt /etc/letsencrypt
 RUN touch /usr/local/bin/slave
 
 #/etc/postfix/main.cf
-RUN postconf -e "inet_interfaces=all" && \
-	postconf -e "mydestination=localhost" && \
-	postconf -e "myhostname=slave.localhost" && \
-	postconf -e "mydomain=localhost" && \
-	postconf -e "smtpd_tls_cert_file=/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" && \
-	postconf -e "smtpd_tls_key_file=/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" && \
-	postconf -e "smtpd_recipient_restrictions=permit_mynetworks permit_sasl_authenticated reject_unauth_destination" && \
-	postconf -e "smtpd_sasl_auth_enable = yes" && \
-	postconf -e "alias_database = hash:/conf/aliases" && \
-	postconf -e "alias_maps = hash:/conf/aliases" && \
-	postconf -e "virtual_transport = lmtp:inet:localhost" && \
-	postconf -e "relay_domains = $MAIL_DOMAIN" && \
-	postconf -e "transport_maps = hash:/conf/transport" && \
-	postconf -e "inet_protocols =ipv4" && \
-	postconf -e "smtpd_banner = ESMTP" && \
-	postconf -e "queue_directory = /spool" && \
-	postconf -e "smtpd_tls_loglevel = 1"
+RUN postconf \
+	"inet_interfaces=all" \
+	"mydestination=localhost" \
+	"myhostname=slave.localhost" \
+	"mydomain=localhost" \
+	"smtpd_tls_cert_file=/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" \
+	"smtpd_tls_key_file=/etc/letsencrypt/live/$SSL_DOMAIN/privkey.pem" \
+	"smtpd_recipient_restrictions=permit_mynetworks permit_sasl_authenticated reject_unauth_destination" \
+	"smtpd_sasl_auth_enable = yes" \
+	"alias_database = hash:/conf/aliases" \
+	"alias_maps = hash:/conf/aliases" \
+	"virtual_transport = lmtp:inet:localhost" \
+	"relay_domains = $MAIL_DOMAIN" \
+	"transport_maps = hash:/conf/transport" \
+	"inet_protocols =ipv4" \
+	"smtpd_banner = ESMTP" \
+	"queue_directory = /spool" \
+	"smtpd_tls_loglevel = 1"
 
 #/etc/postfix/master.cf
-RUN sed -i -e "/^#submission/ s/^#//" /etc/postfix/master.cf && \
-	postconf -P "submission/inet/syslog_name=postfix/submission" && \
-	postconf -P "submission/inet/smtpd_tls_security_level=encrypt" && \
-	postconf -P "submission/inet/smtpd_sasl_auth_enable=yes" && \
-	postconf -P "submission/inet/smtpd_tls_auth_only=yes" && \
-	postconf -P "submission/inet/smtpd_reject_unlisted_recipient=no" && \
-	postconf -P "submission/inet/smtpd_recipient_restrictions=" && \
-	postconf -P "submission/inet/smtpd_relay_restrictions=permit_sasl_authenticated,reject"
+RUN sed -i -e "/^#submission/ s/^#//" /etc/postfix/master.cf
+RUN postconf -P \
+	"submission/inet/syslog_name=postfix/submission" \
+	"submission/inet/syslog_name=postfix/submission" \
+	"submission/inet/smtpd_tls_security_level=encrypt" \
+	"submission/inet/smtpd_sasl_auth_enable=yes" \
+	"submission/inet/smtpd_tls_auth_only=yes" \
+	"submission/inet/smtpd_reject_unlisted_recipient=no" \
+	"submission/inet/smtpd_recipient_restrictions=" \
+	"submission/inet/smtpd_relay_restrictions=permit_sasl_authenticated,reject"
 
 #/etc/sasl2/smtpd.conf
 RUN sed -i -e "s/saslauthd/auxprop/" \
